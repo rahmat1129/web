@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stylish Chat Room</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #f4f7fc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 800%;
+      max-width: 1000px;
+      height: 1000px;
+    }
+
+    h2 {
+      font-size: 24px;
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .login-section, .chat-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    input[type="text"], input[type="password"], input[type="message"] {
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+      width: 100%;
+     
+      box-sizing: border-box;
+      background: #f9f9f9;
+    }
+
+    button {
+      padding: 12px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #messages {
+      border: 1px solid #ddd;
+      padding: 10px;
+      height: 300px;
+      overflow-y: auto;
+      border-radius: 10px;
+      background: #f9f9f9;
+      font-size: 14px;
+    }
+
+    .error {
+      color: red;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .chat-message {
+      margin-bottom: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .incoming-message {
+      background-color: #e2f0ff;
+      padding: 10px;
+      border-radius: 10px;
+      max-width: 80%;
+      margin-bottom: 8px;
+    }
+
+    .outgoing-message {
+      background-color: #cfe9c1;
+      padding: 10px;
+      border-radius: 10px;
+      max-width: 80%;
+      margin-bottom: 8px;
+      margin-left: auto;
+    }
+
+    .chat-message b {
+      color: #007BFF;
+      font-weight: 500;
+    }
+
+    .chat-message small {
+      font-size: 12px;
+      color: #888;
+    }
+
+    #login-section button {
+      width: 48%;
+      display: inline-block;
+    }
+
+    #login-section button:first-child {
+      margin-right: 4%;
+    }
+
+    .username {
+      font-weight: bold;
+      color: #007BFF;
+    }
+
+    .input-container {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .input-container input {
+      flex: 1;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        width: 90%;
+        padding: 15px;
+      }
+
+      button {
+        font-size: 14px;
+      }
+
+      input[type="text"], input[type="password"], input[type="message"] {
+        font-size: 14px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Chat Room</h2>
+
+    <!-- Login Section -->
+    <div id="login-section" class="login-section">
+      <input id="roomId" type="text" placeholder="Room ID" />
+      <input id="password" type="password" placeholder="Room Password" />
+      <div style="display: flex; justify-content: space-between;">
+        <button onclick="joinRoom()">Join Room</button>
+        <button onclick="createRoom()">Create Room</button>
+      </div>
+      <div id="login-error" class="error"></div>
+    </div>
+
+    <!-- Chat Section -->
+    <div id="chat-section" class="chat-section" style="display: none;">
+      <div id="messages"></div>
+      <div class="input-container">
+        <input id="username" type="text" placeholder="Your Name" />
+        <input id="message" type="text" placeholder="Type your message" />
+        <button onclick="sendMessage()">Send</button>
+      </div>
+      <div id="message-error" class="error"></div>
+    </div>
+  </div>
+
+  <script>
+    const baseURL = "https://script.google.com/macros/s/AKfycbzOT3d2ovC4IZnJ20ckDRAY1wswlhMFVcROHPcNwT5DjzkJxTqwf37KTez6--k57J2M/exec"; // Replace with your Web App URL
+    let roomIdGlobal = '';
+
+    // Join a room with roomId and password
+    function joinRoom() {
+      const roomId = document.getElementById("roomId").value;
+      const password = document.getElementById("password").value;
+      const errorDiv = document.getElementById("login-error");
+
+      if (!roomId || !password) {
+        errorDiv.innerText = "Room ID and Password are required.";
+        return;
+      }
+
+      fetch(`${baseURL}?action=verifyRoom&roomId=${roomId}&password=${password}`)
+        .then(response => response.text())
+        .then(isValid => {
+          if (isValid === "true") {
+            roomIdGlobal = roomId;
+            document.getElementById("login-section").style.display = "none";
+            document.getElementById("chat-section").style.display = "block";
+            loadMessages(roomId);
+            setInterval(() => loadMessages(roomId), 1000);  // Refresh every 1 second
+          } else {
+            errorDiv.innerText = "Invalid Room ID or Password.";
+          }
+        });
+    }
+
+    // Create a new room with roomId and password
+    function createRoom() {
+      const roomId = document.getElementById("roomId").value;
+      const password = document.getElementById("password").value;
+      const errorDiv = document.getElementById("login-error");
+
+      if (!roomId || !password) {
+        errorDiv.innerText = "Room ID and Password are required.";
+        return;
+      }
+
+      fetch(`${baseURL}?action=createRoom&roomId=${roomId}&password=${password}`)
+        .then(response => response.text())
+        .then(message => {
+          if (message === "Room created successfully!") {
+            errorDiv.innerText = "";
+            alert(message);
+          } else {
+            errorDiv.innerText = message;
+          }
+        });
+    }
+
+    // Send a message to the room
+    function sendMessage() {
+      const username = document.getElementById("username").value;
+      const message = document.getElementById("message").value;
+      const errorDiv = document.getElementById("message-error");
+
+      if (!username || !message) {
+        errorDiv.innerText = "Username and message cannot be empty.";
+        return;
+      }
+
+      fetch(`${baseURL}?action=sendMessage&roomId=${roomIdGlobal}&username=${username}&message=${message}`)
+        .then(response => response.text())
+        .then(() => {
+          document.getElementById("message").value = "";
+          loadMessages(roomIdGlobal); // Reload messages after sending
+        });
+    }
+
+    // Load the latest messages from the room
+    function loadMessages(roomId) {
+      fetch(`${baseURL}?action=getMessages&roomId=${roomId}&limit=50`)  // Load last 50 messages
+        .then(response => response.json())
+        .then(messages => {
+          const messagesDiv = document.getElementById("messages");
+          messagesDiv.innerHTML = messages
+            .map(msg => {
+              const messageClass = msg.username === document.getElementById("username").value ? 'outgoing-message' : 'incoming-message';
+              return `<div class="chat-message">
+                        <div class="${messageClass}">
+                          <b class="username">${msg.username}</b>: ${msg.message}
+                          <small>(${new Date(msg.timestamp).toLocaleString()})</small>
+                        </div>
+                      </div>`;
+            })
+            .join("");
+          messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+    }
+
+  </script>
+</body>
