@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Members Data</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        /* Reset Defaults */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            background-color: #007BFF;
+            color: #fff;
+            text-align: center;
+            padding: 20px 10px;
+            font-size: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Table Container */
+        .container {
+            width: 95%;
+            margin: 20px auto;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        input, button {
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #28a745;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .table-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow-x: auto; /* Adds horizontal scroll for overflow */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        thead {
+            background-color: #007BFF;
+            color: #fff;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        th {
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #e8f1ff;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 10px 5px;
+            background-color: #007BFF;
+            color: white;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <h1>Members Data</h1>
+    </header>
+
+    <!-- Controls -->
+    <div class="container">
+        <div class="controls">
+            <input type="text" id="searchInput" placeholder="Search by Name...">
+            <button onclick="searchData()">Search</button>
+            <button onclick="downloadPDF()">Download PDF</button>
+        </div>
+
+        <!-- Table Container -->
+        <div class="table-container">
+            <table id="data-table">
+                <thead>
+                     <tr>
+     <th>Unique ID</th>
+     <th>Name</th>
+     <th>Aadhar Number</th>
+     <th>Address</th>
+     <th>Father Name</th>
+     <th>Mobile</th>
+     <th>Gmail</th>
+     <th>Loan Amount</th>
+     <th>Interest Percent</th>
+     <th>Total Paid</th>
+     <th>Money Due</th>
+     <th>Total Interest (₹)</th>
+   </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        &copy; 2024 Members Data | Powered by Google Apps Script
+    </footer>
+
+    <script>
+        let tableData = [];
+
+        // Fetch Data
+        async function loadData() {
+            const scriptURL = "https://script.google.com/macros/s/AKfycbxSIrio10NNJyq6A3aOQ6xeapGZmNtWDBhjlIQt09m_4ZK4AdScCA8t8Zy72oTS147O/exec";
+            const tableBody = document.querySelector("#data-table tbody");
+
+            try {
+                const response = await fetch(scriptURL);
+                const data = await response.json();
+
+                // Populate table rows
+                tableData = data.slice(1); // Exclude headers
+                renderTable(tableData);
+            } catch (error) {
+                console.error("Error loading data:", error);
+            }
+        }
+
+        // Render Table
+        function renderTable(data) {
+            const tableBody = document.querySelector("#data-table tbody");
+            tableBody.innerHTML = "";
+
+            data.forEach(row => {
+                const tr = document.createElement("tr");
+                row.forEach(cell => {
+                    const td = document.createElement("td");
+                    td.textContent = cell;
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // Search Functionality
+        function searchData() {
+            const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+            const filteredData = tableData.filter(row => row[1].toLowerCase().includes(searchTerm));
+            renderTable(filteredData);
+        }
+
+        // Download PDF
+        function downloadPDF() {
+            const table = document.querySelector("#data-table");
+            const rows = table.querySelectorAll("tr");
+
+            let pdfContent = "Members Data\n\n";
+            rows.forEach(row => {
+                const cells = row.querySelectorAll("th, td");
+                let rowData = Array.from(cells).map(cell => cell.textContent).join(", ");
+                pdfContent += rowData + "\n";
+            });
+
+            const blob = new Blob([pdfContent], { type: "text/plain;charset=utf-8" });
+            saveAs(blob, "members_data.pdf");
+        }
+
+        // Load Data Initially
+        loadData();
+    </script>
+</body>
+</html>
