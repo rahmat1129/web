@@ -1,0 +1,448 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Content Extractor Tool</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 25px 30px;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+            flex-grow: 1;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 20px;
+        }
+        header h1 {
+            color: #1a73e8;
+            margin: 0;
+            font-size: 2em;
+        }
+        header p {
+            color: #5f6368;
+            font-size: 0.95em;
+            margin-top: 5px;
+        }
+
+        .input-area label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #3c4043;
+        }
+        textarea#userInput {
+            width: 100%;
+            min-height: 200px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .action-buttons button {
+            flex-grow: 1;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .action-buttons button:hover {
+            background-color: #1558b3;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .action-buttons button.secondary {
+            background-color: #6c757d;
+        }
+        .action-buttons button.secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+        .filter-controls label {
+            font-weight: 500;
+            color: #3c4043;
+        }
+        .filter-controls input[type="search"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 15px;
+        }
+        #blockCountInfo {
+            font-size: 0.9em;
+            color: #5f6368;
+            white-space: nowrap;
+        }
+
+        .content-box {
+            background-color: #fdfdfd;
+            border: 1px solid #e0e0e0;
+            border-left: 4px solid #1a73e8;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .content-box.hidden {
+            display: none; /* For filtering logic */
+        }
+        .content-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .content-box-header h3 {
+            margin: 0;
+            font-size: 1.1em;
+            color: #202124;
+        }
+        .content-box-header .language-tag {
+            background-color: #e8f0fe;
+            color: #1967d2;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .content-box pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background-color: #eef1f5;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 0;
+            margin-bottom: 12px;
+            overflow-x: auto;
+            font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            color: #202124;
+            max-height: 300px; /* Prevents very long blocks from taking too much space */
+        }
+        .copy-button {
+            background-color: #34a853;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            text-align: center;
+            font-size: 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .copy-button:hover {
+            background-color: #2c8c43;
+        }
+        .copied-feedback {
+            display: inline-block;
+            margin-left: 10px;
+            color: #34a853;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .status-message {
+            text-align: center;
+            color: #5f6368;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #e9ecef;
+            color: #5f6368;
+            font-size: 0.9em;
+            margin-top: auto; /* Pushes footer to bottom */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Advanced Content Extractor</h1>
+            <p>Extract, view, and manage code blocks (```...```) with ease.</p>
+        </header>
+
+        <div class="input-area">
+            <label for="userInput">Paste your content here:</label>
+            <textarea id="userInput" placeholder="For example:
+Some text.
+```javascript
+function greet(name) {
+  console.log(`Hello, ${name}!`);
+}
+greet('User');
+
+Another block.
+# Python code
+print('Hello from Python')
+```"></textarea>
+        </div>
+
+        <div class="action-buttons">
+            <button id="processButton">Extract Blocks</button>
+            <button id="copyAllButton" class="secondary">Copy All Visible Blocks</button>
+            <button id="clearInputButton" class="secondary">Clear Input</button>
+            <button id="clearResultsButton" class="secondary">Clear Results</button>
+        </div>
+
+        <div class="filter-controls">
+            <label for="filterInput">Filter by content:</label>
+            <input type="search" id="filterInput" placeholder="Type to filter blocks...">
+            <span id="blockCountInfo">Blocks: 0 (Visible: 0)</span>
+        </div>
+
+        <div id="output-container">
+            </div>
+        <p id="statusMessage" class="status-message" style="display: none;">No ```...``` blocks found or all blocks are filtered out.</p>
+    </div>
+
+    <footer>
+        Tool by Gemini &copy; 2025
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const processButton = document.getElementById('processButton');
+            const userInput = document.getElementById('userInput');
+            const outputContainer = document.getElementById('output-container');
+            const statusMessage = document.getElementById('statusMessage');
+            const filterInput = document.getElementById('filterInput');
+            const blockCountInfo = document.getElementById('blockCountInfo');
+            const copyAllButton = document.getElementById('copyAllButton');
+            const clearInputButton = document.getElementById('clearInputButton');
+            const clearResultsButton = document.getElementById('clearResultsButton');
+
+            let totalBlocksFound = 0;
+
+            function updateBlockCount() {
+                const visibleBlocks = outputContainer.querySelectorAll('.content-box:not(.hidden)').length;
+                blockCountInfo.textContent = `Blocks: ${totalBlocksFound} (Visible: ${visibleBlocks})`;
+                statusMessage.style.display = (totalBlocksFound > 0 && visibleBlocks === 0) ? 'block' : 'none';
+                 if (totalBlocksFound === 0) {
+                    statusMessage.textContent = 'No ```...``` blocks found.';
+                    statusMessage.style.display = 'block';
+                } else if (visibleBlocks === 0 && totalBlocksFound > 0) {
+                    statusMessage.textContent = 'All blocks are filtered out. Clear filter to see them.';
+                     statusMessage.style.display = 'block';
+                }
+            }
+
+            function filterBlocks() {
+                const filterText = filterInput.value.toLowerCase();
+                const blocks = outputContainer.querySelectorAll('.content-box');
+                let visibleCount = 0;
+
+                blocks.forEach(block => {
+                    const content = block.querySelector('pre').textContent.toLowerCase();
+                    const title = block.querySelector('h3').textContent.toLowerCase(); // Also filter by block title/language
+                    if (content.includes(filterText) || title.includes(filterText)) {
+                        block.classList.remove('hidden');
+                        block.style.opacity = '1';
+                        block.style.transform = 'scale(1)';
+                        visibleCount++;
+                    } else {
+                        block.classList.add('hidden');
+                        block.style.opacity = '0';
+                        block.style.transform = 'scale(0.95)';
+                    }
+                });
+                updateBlockCount();
+            }
+
+            processButton.addEventListener('click', function() {
+                const inputText = userInput.value;
+                outputContainer.innerHTML = ''; // Clear previous results
+                filterInput.value = ''; // Reset filter
+                totalBlocksFound = 0;
+
+                // Regex to capture optional language specifier and content
+                // ```(language)?\n? (content) ```
+                const regex = /```(\w*)\n?([\s\S]*?)```/g;
+                let match;
+                let blockIndex = 0;
+                const matchesFound = [];
+
+                while ((match = regex.exec(inputText)) !== null) {
+                    matchesFound.push({
+                        language: match[1] || 'text', // Default to 'text' if no language specified
+                        content: match[2].trim()
+                    });
+                }
+
+                totalBlocksFound = matchesFound.length;
+
+                if (matchesFound.length === 0) {
+                    updateBlockCount(); // This will show "No blocks found"
+                    return;
+                }
+
+                matchesFound.forEach(item => {
+                    blockIndex++;
+                    const box = document.createElement('div');
+                    box.className = 'content-box';
+                    box.dataset.rawContent = item.content; // Store raw content for "Copy All"
+
+                    const header = document.createElement('div');
+                    header.className = 'content-box-header';
+
+                    const title = document.createElement('h3');
+                    title.textContent = `Block ${blockIndex}`;
+
+                    const langTag = document.createElement('span');
+                    langTag.className = 'language-tag';
+                    langTag.textContent = item.language;
+
+                    header.appendChild(title);
+                    if (item.language && item.language.toLowerCase() !== 'text') {
+                         header.appendChild(langTag);
+                    }
+
+
+                    const pre = document.createElement('pre');
+                    pre.textContent = item.content;
+
+                    const copyButton = document.createElement('button');
+                    copyButton.className = 'copy-button';
+                    copyButton.textContent = 'Copy';
+
+                    const feedbackSpan = document.createElement('span');
+                    feedbackSpan.className = 'copied-feedback';
+
+                    copyButton.onclick = function() {
+                        navigator.clipboard.writeText(item.content)
+                            .then(() => {
+                                feedbackSpan.textContent = 'Copied!';
+                                copyButton.disabled = true;
+                                copyButton.style.backgroundColor = '#aaa';
+                                setTimeout(() => {
+                                    feedbackSpan.textContent = '';
+                                    copyButton.disabled = false;
+                                    copyButton.style.backgroundColor = '#34a853';
+                                }, 1500);
+                            })
+                            .catch(err => {
+                                console.error('Failed to copy: ', err);
+                                feedbackSpan.textContent = 'Error!';
+                                feedbackSpan.style.color = 'red';
+                                setTimeout(() => {
+                                    feedbackSpan.textContent = '';
+                                    feedbackSpan.style.color = '#34a853';
+                                }, 2000);
+                            });
+                    };
+                    
+                    box.appendChild(header);
+                    box.appendChild(pre);
+                    box.appendChild(copyButton);
+                    box.appendChild(feedbackSpan);
+                    outputContainer.appendChild(box);
+                });
+                updateBlockCount();
+            });
+
+            filterInput.addEventListener('input', filterBlocks);
+
+            copyAllButton.addEventListener('click', function() {
+                const visibleBlocks = outputContainer.querySelectorAll('.content-box:not(.hidden)');
+                if (visibleBlocks.length === 0) {
+                    alert('No visible blocks to copy. Clear filter or extract new blocks.');
+                    return;
+                }
+
+                let allContent = [];
+                visibleBlocks.forEach((block, index) => {
+                    const lang = block.querySelector('.language-tag') ? block.querySelector('.language-tag').textContent : 'text';
+                    const content = block.dataset.rawContent;
+                    allContent.push(`--- Block ${index + 1} (${lang}) ---\n${content}`);
+                });
+
+                const fullText = allContent.join('\n\n');
+
+                navigator.clipboard.writeText(fullText)
+                    .then(() => {
+                        copyAllButton.textContent = 'All Copied!';
+                        copyAllButton.style.backgroundColor = '#28a745';
+                        setTimeout(() => {
+                            copyAllButton.textContent = 'Copy All Visible Blocks';
+                            copyAllButton.style.backgroundColor = '#6c757d';
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy all: ', err);
+                        alert('Error copying all blocks. See console for details.');
+                    });
+            });
+
+            clearInputButton.addEventListener('click', function() {
+                userInput.value = '';
+            });
+
+            clearResultsButton.addEventListener('click', function() {
+                outputContainer.innerHTML = '';
+                totalBlocksFound = 0;
+                filterInput.value = '';
+                updateBlockCount();
+                statusMessage.textContent = 'Results cleared.';
+                statusMessage.style.display = 'block';
+                 setTimeout(() => {
+                    if (statusMessage.textContent === 'Results cleared.') { // Only hide if it's this specific message
+                         statusMessage.style.display = 'none';
+                    }
+                }, 2000);
+            });
+
+            // Initial state
+            updateBlockCount();
+        });
+    </script>
+
+</body>
+</html>
+

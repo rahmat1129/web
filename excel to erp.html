@@ -1,0 +1,350 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Data Extractor & Reformatter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f6f8;
+            color: #1a202c;
+            line-height: 1.6;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            margin: 20px auto;
+        }
+        h2, h3 {
+            color: #2c5282; /* Darker blue */
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        h3 {
+            font-size: 1.25em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        input[type="file"], select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 16px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            box-sizing: border-box;
+            background-color: #fff;
+            font-size: 0.95rem;
+        }
+        select[multiple] {
+            min-height: 150px;
+        }
+        input[type="file"] {
+            padding: 8px;
+        }
+        button {
+            background-color: #3182ce; /* Primary blue */
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease-in-out;
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #2b6cb0; /* Darker shade on hover */
+        }
+        button:disabled {
+            background-color: #a0aec0;
+            cursor: not-allowed;
+        }
+        .mapping-item {
+            display: flex;
+            align-items: center;
+            gap: 15px; /* For spacing between label and select */
+            margin-bottom: 12px;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background-color: #f7fafc;
+        }
+        .mapping-item label {
+            flex-basis: 200px; /* Fixed width for standard field label */
+            margin-bottom: 0; /* Override default label margin */
+            font-weight: normal;
+            color: #2d3748;
+        }
+        .mapping-item select {
+            flex-grow: 1; /* Select takes remaining space */
+            margin-bottom: 0; /* Override default select margin */
+        }
+        .info-text {
+            font-size: 0.875rem;
+            color: #718096;
+            margin-bottom: 15px;
+        }
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(255,255,255,0.8);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            display: none; justify-content: center; align-items: center;
+            color: #2c5282; font-size: 1.25em; text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay">Processing your file... Please wait.</div>
+
+    <div class="container">
+        <h2>Student Data Extractor & Reformatter</h2>
+
+        <div id="uploadSection">
+            <h3>Step 1: Upload Your XLSX File</h3>
+            <p class="info-text">Select the Excel file containing student information.</p>
+            <label for="xlsxFile">Choose XLSX File:</label>
+            <input type="file" id="xlsxFile" accept=".xlsx, .xls">
+        </div>
+
+        <div id="mappingSection" style="display:none;">
+            <h3>Step 2: Map Standard Student Fields</h3>
+            <p class="info-text">For each standard field listed below, select the corresponding column header from your uploaded file. If a field is not present in your file, choose "--- Not Available ---".</p>
+            <div id="standardFieldsMappingContainer">
+                </div>
+
+            <h3>Step 3: Select Extra Columns to Include (Optional)</h3>
+            <p class="info-text">Choose any additional columns from your original file that you want to include in the new spreadsheet. These will be added after the standard fields.</p>
+            <label for="extraColumnsSelect">Available Columns from Your File (Hold Ctrl/Cmd to select multiple):</label>
+            <select id="extraColumnsSelect" multiple>
+                </select>
+        </div>
+
+        <button id="processAndDownloadBtn" disabled>Process File and Download New XLSX</button>
+    </div>
+
+<script>
+    // Define the standard fields you want to map to
+    const STANDARD_FIELDS_CONFIG = [
+        { key: 'StudentID', label: 'Student ID' },
+        { key: 'FullName', label: 'Full Name' },
+        { key: 'RollNumber', label: 'Roll Number' },
+        { key: 'Class', label: 'Class / Grade' },
+        { key: 'Section', label: 'Section' },
+        { key: 'DateOfBirth', label: 'Date of Birth' }, // Consider asking for YYYY-MM-DD
+        { key: 'Gender', label: 'Gender' },
+        { key: 'FatherName', label: "Father's Name" },
+        { key: 'MotherName', label: "Mother's Name" },
+        { key: 'ContactNumber', label: 'Contact Number' },
+        { key: 'AlternateContact', label: 'Alternate Contact' },
+        { key: 'EmailID', label: 'Email ID' },
+        { key: 'Address', label: 'Full Address' },
+        { key: 'City', label: 'City' },
+        { key: 'State', label: 'State' },
+        { key: 'PinCode', label: 'Pin Code' },
+        { key: 'AdmissionDate', label: 'Admission Date' }, // YYYY-MM-DD
+        { key: 'AadharNumber', label: 'Aadhar Number' }
+    ];
+
+    let uploadedJsonData = [];
+    let uploadedHeaders = [];
+
+    const xlsxFileInput = document.getElementById('xlsxFile');
+    const mappingSectionDiv = document.getElementById('mappingSection');
+    const standardFieldsMappingContainer = document.getElementById('standardFieldsMappingContainer');
+    const extraColumnsSelect = document.getElementById('extraColumnsSelect');
+    const processAndDownloadBtn = document.getElementById('processAndDownloadBtn');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
+    function showLoading(show = true) {
+        loadingOverlay.style.display = show ? 'flex' : 'none';
+    }
+
+    xlsxFileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) {
+            mappingSectionDiv.style.display = 'none';
+            processAndDownloadBtn.disabled = true;
+            return;
+        }
+        showLoading();
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array', cellDates: true }); // cellDates: true to parse dates
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+
+                const headerRow = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" })[0];
+                uploadedHeaders = headerRow ? headerRow.map(String) : [];
+                
+                // For data, convert dates to YYYY-MM-DD string format if they are Date objects
+                uploadedJsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "", raw: false, dateNF: 'yyyy-mm-dd' });
+
+
+                if (uploadedHeaders.length === 0 || uploadedJsonData.length === 0) {
+                    alert("The selected Excel file appears to be empty or does not have a valid header row.");
+                    showLoading(false);
+                    mappingSectionDiv.style.display = 'none';
+                    processAndDownloadBtn.disabled = true;
+                    return;
+                }
+
+                populateMappingUI();
+                mappingSectionDiv.style.display = 'block';
+                processAndDownloadBtn.disabled = false;
+            } catch (error) {
+                console.error("Error processing XLSX file:", error);
+                alert("Error processing XLSX file. Please ensure it's a valid Excel file.\n" + error.message);
+                mappingSectionDiv.style.display = 'none';
+                processAndDownloadBtn.disabled = true;
+            } finally {
+                showLoading(false);
+            }
+        };
+        reader.onerror = (error) => {
+            console.error("File reading error:", error);
+            alert("Could not read the file.");
+            showLoading(false);
+            processAndDownloadBtn.disabled = true;
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+    function populateMappingUI() {
+        standardFieldsMappingContainer.innerHTML = '';
+        extraColumnsSelect.innerHTML = '';
+
+        const notAvailableOption = `<option value="">--- Not Available ---</option>`;
+        const headerOptions = uploadedHeaders.map(header => `<option value="${header}">${header}</option>`).join('');
+
+        STANDARD_FIELDS_CONFIG.forEach(field => {
+            const itemDiv = document.createElement('div');
+            itemDiv.classList.add('mapping-item');
+            
+            const label = document.createElement('label');
+            label.htmlFor = `map-${field.key}`;
+            label.textContent = `${field.label}:`;
+            
+            const select = document.createElement('select');
+            select.id = `map-${field.key}`;
+            select.dataset.fieldKey = field.key; // Store the key for later retrieval
+            select.innerHTML = notAvailableOption + headerOptions;
+
+            // Basic auto-selection attempt
+            const autoSelectedHeader = uploadedHeaders.find(h =>
+                h.toLowerCase().replace(/[\s\W_]/g, '') === field.label.toLowerCase().replace(/[\s\W_]/g, '') ||
+                h.toLowerCase().replace(/[\s\W_]/g, '') === field.key.toLowerCase().replace(/[\s\W_]/g, '')
+            );
+            if (autoSelectedHeader) {
+                select.value = autoSelectedHeader;
+            }
+
+            itemDiv.appendChild(label);
+            itemDiv.appendChild(select);
+            standardFieldsMappingContainer.appendChild(itemDiv);
+        });
+
+        // Populate extra columns select - initially all headers are available
+        uploadedHeaders.forEach(header => {
+            const option = document.createElement('option');
+            option.value = header;
+            option.textContent = header;
+            extraColumnsSelect.appendChild(option);
+        });
+    }
+
+    processAndDownloadBtn.addEventListener('click', () => {
+        if (uploadedJsonData.length === 0) {
+            alert("No data loaded from XLSX. Please upload a file first.");
+            return;
+        }
+        showLoading();
+
+        const standardFieldMapping = {};
+        document.querySelectorAll('#standardFieldsMappingContainer select').forEach(select => {
+            if (select.value) { // Only consider mapped fields
+                standardFieldMapping[select.dataset.fieldKey] = select.value;
+            }
+        });
+
+        const selectedExtraHeaders = Array.from(extraColumnsSelect.selectedOptions).map(option => option.value);
+
+        const outputData = [];
+
+        uploadedJsonData.forEach(inputRow => {
+            const newOutputRow = {};
+
+            // Process standard fields
+            STANDARD_FIELDS_CONFIG.forEach(fieldConfig => {
+                const mappedHeader = standardFieldMapping[fieldConfig.key];
+                if (mappedHeader && inputRow.hasOwnProperty(mappedHeader)) {
+                    newOutputRow[fieldConfig.label] = inputRow[mappedHeader]; // Use standard label as output header
+                } else {
+                    newOutputRow[fieldConfig.label] = ""; // Blank if not mapped or not in row
+                }
+            });
+
+            // Process extra columns
+            selectedExtraHeaders.forEach(extraHeader => {
+                // Check if this extraHeader's data is already included via a standard field mapping (to avoid direct duplication)
+                // This logic can be complex if standard field output labels are different from original headers.
+                // For simplicity, we'll add it if selected. User is responsible for choice.
+                // A more advanced check: is `extraHeader` one of the `Object.values(standardFieldMapping)`?
+                // If so, is `newOutputRow[original header name for that standard field]` already set?
+                // For now, simply add them. If a column is mapped to a standard field AND selected as extra,
+                // it might appear twice (once with standard label, once with original header).
+                if (inputRow.hasOwnProperty(extraHeader)) {
+                    newOutputRow[extraHeader] = inputRow[extraHeader]; // Use original header for extra columns
+                } else {
+                    newOutputRow[extraHeader] = "";
+                }
+            });
+            outputData.push(newOutputRow);
+        });
+
+        if (outputData.length === 0) {
+            alert("No data was processed to output. Check mappings.");
+            showLoading(false);
+            return;
+        }
+
+        // Create new XLSX
+        const newWorksheet = XLSX.utils.json_to_sheet(outputData);
+        const newWorkbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(newWorkbook, newWorksheet, "Processed Student Data");
+
+        try {
+            XLSX.writeFile(newWorkbook, "Reformatted_Student_Data.xlsx");
+        } catch (error) {
+            console.error("Error writing XLSX file:", error);
+            alert("Error generating the new XLSX file. Check console for details.");
+        } finally {
+            showLoading(false);
+        }
+    });
+
+</script>
+</body>
+</html>
+
