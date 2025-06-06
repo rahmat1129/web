@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Google Auth</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        #auth-container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 320px;
+        }
+        h1 {
+            margin-top: 0;
+            color: #4285F4;
+        }
+        #user-info img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+        }
+        #user-info h2 {
+            margin: 0 0 5px 0;
+            font-size: 1.2em;
+        }
+        #user-info p {
+            margin: 0;
+            color: #555;
+            font-size: 0.9em;
+        }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+            width: 100%;
+            font-weight: bold;
+        }
+        #login-btn {
+            background-color: #4285F4;
+            color: white;
+        }
+        #login-btn:hover {
+            background-color: #357ae8;
+        }
+        #logout-btn {
+            background-color: #db4437;
+            color: white;
+        }
+        #logout-btn:hover {
+            background-color: #c23327;
+        }
+        #user-container {
+            display: none; /* शुरुआत में छिपा हुआ */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="auth-container">
+        <h1>Firebase Auth</h1>
+        
+        <!-- यह तब दिखेगा जब यूजर लॉग इन नहीं होगा -->
+        <div id="login-container">
+            <p>Please sign in to continue.</p>
+            <button id="login-btn">Sign in with Google</button>
+        </div>
+
+        <!-- यह तब दिखेगा जब यूजर लॉग इन हो जाएगा -->
+        <div id="user-container">
+            <div id="user-info">
+                <img id="user-photo" src="" alt="User Photo">
+                <h2 id="user-name"></h2>
+                <p id="user-email"></p>
+            </div>
+            <button id="logout-btn">Logout</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK Scripts -->
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-app.js";
+      // Auth से संबंधित फंक्शन इम्पोर्ट करें
+      import { 
+        getAuth, 
+        GoogleAuthProvider, 
+        signInWithPopup,
+        signOut,
+        onAuthStateChanged 
+      } from "https://www.gstatic.com/firebasejs/11.9.0/firebase-auth.js";
+
+      // आपका वेब ऐप का Firebase कॉन्फ़िगरेशन
+      const firebaseConfig = {
+        apiKey: "AIzaSyCmLhU5IKR1ASK-qwuYhMB9clHKuwzQV40",
+        authDomain: "chat-fe956.firebaseapp.com",
+        projectId: "chat-fe956",
+        storageBucket: "chat-fe956.firebasestorage.app",
+        messagingSenderId: "870205428468",
+        appId: "1:870205428468:web:6b8d15fa0e9d603f6584a1",
+        measurementId: "G-FT8C41C0Z0"
+      };
+
+      // Firebase को प्रारंभ करें (Initialize)
+      const app = initializeApp(firebaseConfig);
+      
+      // Firebase Auth और Provider को प्रारंभ करें
+      const auth = getAuth(app);
+      const provider = new GoogleAuthProvider();
+
+      // HTML elements को चुनें
+      const loginContainer = document.getElementById('login-container');
+      const userContainer = document.getElementById('user-container');
+      const loginBtn = document.getElementById('login-btn');
+      const logoutBtn = document.getElementById('logout-btn');
+      
+      const userName = document.getElementById('user-name');
+      const userEmail = document.getElementById('user-email');
+      const userPhoto = document.getElementById('user-photo');
+
+      // --- इवेंट लिस्टनर्स ---
+
+      // Google से साइन इन करने के लिए
+      loginBtn.addEventListener('click', () => {
+        signInWithPopup(auth, provider)
+          .then((result) => {
+            // साइन इन सफल हुआ
+            console.log("User signed in successfully:", result.user);
+            // UI को onAuthStateChanged हैंडल करेगा
+          })
+          .catch((error) => {
+            // अगर कोई एरर आती है
+            console.error("Authentication failed:", error);
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            alert(`Error: ${errorMessage} (Code: ${errorCode})`);
+          });
+      });
+
+      // लॉगआउट करने के लिए
+      logoutBtn.addEventListener('click', () => {
+        signOut(auth)
+          .then(() => {
+            // लॉगआउट सफल हुआ
+            console.log("User signed out.");
+            // UI को onAuthStateChanged हैंडल करेगा
+          })
+          .catch((error) => {
+            console.error("Sign out failed:", error);
+          });
+      });
+
+      // --- Auth State Listener ---
+      // यह फंक्शन तब चलता है जब भी यूजर का लॉगिन या लॉगआउट स्टेटस बदलता है
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          // यूजर लॉग इन है
+          // UI अपडेट करें: यूजर की जानकारी दिखाएं और लॉगिन बटन छिपाएं
+          loginContainer.style.display = 'none';
+          userContainer.style.display = 'block';
+
+          // यूजर की जानकारी सेट करें
+          userName.textContent = user.displayName;
+          userEmail.textContent = user.email;
+          userPhoto.src = user.photoURL;
+          
+        } else {
+          // यूजर लॉग आउट है
+          // UI अपडेट करें: लॉगिन बटन दिखाएं और यूजर की जानकारी छिपाएं
+          loginContainer.style.display = 'block';
+          userContainer.style.display = 'none';
+        }
+      });
+
+    </script>
+</body>
+</html>
