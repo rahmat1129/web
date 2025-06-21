@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Data Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Titillium+Web:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db; --secondary-color: #2ecc71; --accent-color: #e74c3c;
+            --background-color: #f4f6f8; --text-color: #34495e; --card-bg: #ffffff;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.08); --border-radius: 8px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
+        body { background-color: var(--background-color); color: var(--text-color); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 25px; line-height: 1.6; }
+        #loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(255,255,255,0.9);display:flex;justify-content:center;align-items:center;z-index:9999;opacity:0;visibility:hidden;transition:opacity .3s ease,visibility .3s ease}
+        #loading-overlay.show{opacity:1;visibility:visible}
+        .spinner{width:50px;height:50px;border:5px solid rgba(0,0,0,.1);border-left-color:var(--primary-color);border-radius:50%;animation:spin .8s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+
+        .container { background-color: var(--card-bg); padding: 35px 45px; border-radius: var(--border-radius); box-shadow: var(--shadow); width: 100%; max-width: 600px; text-align: center; margin-top: 20px; animation: slideInUp .5s ease-out; }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .app-title { color: var(--primary-color); margin-bottom: 30px; font-family: 'Titillium Web', sans-serif; font-size: 2.2rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .app-title .fas { font-size: 1.8rem; }
+        .input-group { margin-bottom: 22px; text-align: left; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #555; }
+        .input-group input { width: 100%; padding: 14px 18px; border: 1px solid #d0d0d0; border-radius: var(--border-radius); font-size: 1rem; background-color: #fdfdfd; transition: border-color .3s ease, box-shadow .3s ease; }
+        .input-group input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15); }
+
+        button { background: linear-gradient(45deg, var(--primary-color), #56aae6); color: white; padding: 14px 28px; border: none;  border-radius: var(--border-radius); font-size: 1.05rem; cursor: pointer;  transition: all .3s cubic-bezier(0.25, 0.8, 0.25, 1); display: inline-flex; align-items: center; justify-content: center; gap: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        button:hover { background: linear-gradient(45deg, #2980b9, var(--primary-color)); transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        button:active { transform: translateY(-1px); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        button:disabled { background: #bdc3c7; cursor: not-allowed; transform: none; box-shadow: none; }
+        button .icon { margin-right: 8px; }
+        button.logout-btn { background: linear-gradient(45deg, var(--accent-color), #e67e22) !important; margin-top:25px; }
+        button.logout-btn:hover { background: linear-gradient(45deg, #c0392b, #d35400) !important; }
+        button.download-all-btn { background: linear-gradient(45deg, var(--secondary-color), #58d68d); width:100%; margin-top:15px; margin-bottom: 20px;}
+        button.download-all-btn:hover { background: linear-gradient(45deg, #27ae60, #2ecc71); }
+        button.restore-btn { background: linear-gradient(45deg, #f39c12, #f1c40f); width:100%; margin-top:10px; }
+        button.restore-btn:hover { background: linear-gradient(45deg, #e67e22, #f39c12); }
+
+
+        .message { margin-top:20px; font-weight:500; padding:12px 18px; border-radius:var(--border-radius); text-align:left; display:flex; align-items:center; gap:10px; border-left-width: 5px; border-left-style:solid; animation: fadeInMessage .4s ease-out; }
+        @keyframes fadeInMessage { from{opacity:0; transform:scale(0.95)} to{opacity:1; transform:scale(1)} }
+        .message.error   { background-color:#ffebee; color:#c62828; border-left-color:#c62828; }
+        .message.success { background-color:#e8f5e9; color:#2e7d32; border-left-color:#2e7d32; }
+        .message.info    { background-color:#e1f5fe; color:#0277bd; border-left-color:#0277bd; }
+        .message.warning { background-color:#fff3e0; color:#ef6c00; border-left-color:#ef6c00;}
+
+
+        #sheets-overview { margin-top: 30px; text-align: left;}
+        #sheets-overview h2 { color:var(--text-color); border-bottom-color: var(--primary-color); font-size:1.5rem;}
+        #sheet-list { list-style: none; padding: 0; margin-top: 15px; max-height: 280px; overflow-y:auto; border:1px solid #ddd; border-radius:var(--border-radius); background-color: #fdfdfd;}
+        .sheet-list-item { padding: 12px 18px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px; font-size: 1rem; color: var(--text-color); }
+        .sheet-list-item:last-child { border-bottom: none; }
+        .sheet-list-item .fa-file-alt { color: var(--primary-color); opacity:0.7; font-size: 1.1rem;}
+
+        #restore-section { margin-top: 30px; padding-top: 20px; border-top: 2px dashed var(--primary-color); text-align:left; }
+        #restore-section h2 { font-size: 1.5rem; margin-bottom:15px;}
+        #zip-file-input {
+            display: block; width: 100%; padding: 10px; margin-bottom: 15px;
+            border: 2px dashed var(--primary-color); border-radius: var(--border-radius);
+            background-color: #fdfdfd; text-align:center; cursor:pointer;
+        }
+        #zip-file-input:hover { background-color: #f0faff;}
+        #file-name-display { margin-top:5px; font-style:italic; color:var(--dark-grey); font-size:0.9rem;}
+
+        .hidden { display: none !important; }
+        
+        @media (max-width: 600px) {
+            .container { padding: 25px 20px; margin-top:10px; }
+            .app-title { font-size: 1.8rem; }
+            h1 { font-size: 1.8rem; }
+            button { padding: 12px 20px; font-size: 0.95rem; }
+            .app-header h1 { font-size:1.5rem;}
+            .app-header {padding: 12px 15px;}
+        }
+
+    </style>
+</head>
+<body>
+    <div id="loading-overlay"><div class="spinner"></div></div>
+
+    <div id="login-container" class="container">
+        <h1 class="app-title"><i class="fas fa-archive"></i> School Data Manager</h1>
+        <form id="login-form" novalidate>
+            <div class="input-group">
+                <label for="mobile"><i class="fas fa-mobile-alt"></i> Mobile Number</label>
+                <input type="tel" id="mobile" placeholder="Enter mobile number" required>
+            </div>
+            <div class="input-group">
+                <label for="password"><i class="fas fa-lock"></i> Password</label>
+                <input type="password" id="password" placeholder="Enter password" required>
+            </div>
+            <button type="submit" id="login-btn"><i class="fas fa-sign-in-alt icon"></i> Login</button>
+        </form>
+        <div id="login-message" class="message error" style="display: none;"></div>
+    </div>
+
+    <div id="data-container" class="container hidden">
+        <h1 class="app-title" id="school-name-display"><i class="fas fa-school"></i> <span>School</span> Sheets</h1>
+        <div id="global-message" class="message" style="display: none;"></div>
+        
+        <button id="download-all-zip-btn" class="download-all-btn">
+            <i class="fas fa-file-archive icon"></i> Download All Sheets (ZIP)
+        </button>
+
+        <div id="sheets-overview">
+            <h2><i class="fas fa-list-ul"></i> Available Sheets:</h2>
+            <ul id="sheet-list">
+                <!-- Sheet items will be populated here -->
+            </ul>
+        </div>
+        
+        <div id="restore-section">
+            <h2><i class="fas fa-upload"></i> Restore Data from ZIP</h2>
+            <div class="input-group">
+                <label for="zip-file-input">Select ZIP file to restore:</label>
+                <input type="file" id="zip-file-input" accept=".zip">
+                <div id="file-name-display">No file selected.</div>
+            </div>
+            <button id="restore-data-btn" class="restore-btn" disabled><i class="fas fa-cloud-upload-alt icon"></i> Upload & Restore Data</button>
+        </div>
+
+        <button id="logout-btn" class="logout-btn"><i class="fas fa-sign-out-alt icon"></i> Logout</button>
+    </div>
+
+<script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyct0hEDmGKpUiYhvexNXXUvLTYZjAfwxrIZQPy10uHkvMkiZKjroylqsM7MYSnr6PNzw/exec"; // Your provided URL
+    let currentSchoolSpreadsheetId = null;
+    let currentSchoolName = "School"; // Default
+
+    const D = {
+        loadingOverlay: document.getElementById('loading-overlay'),
+        loginContainer: document.getElementById('login-container'),
+        dataContainer: document.getElementById('data-container'),
+        loginForm: document.getElementById('login-form'),
+        mobileInput: document.getElementById('mobile'),
+        passwordInput: document.getElementById('password'),
+        loginButton: document.getElementById('login-btn'),
+        loginMessage: document.getElementById('login-message'),
+        schoolNameDisplaySpan: document.querySelector('#school-name-display span'),
+        sheetList: document.getElementById('sheet-list'),
+        globalMessage: document.getElementById('global-message'),
+        downloadAllZipBtn: document.getElementById('download-all-zip-btn'),
+        zipFileInput: document.getElementById('zip-file-input'),
+        fileNameDisplay: document.getElementById('file-name-display'),
+        restoreDataBtn: document.getElementById('restore-data-btn'),
+        logoutBtn: document.getElementById('logout-btn'),
+    };
+
+    const showLoading = () => D.loadingOverlay.classList.add('show');
+    const hideLoading = () => D.loadingOverlay.classList.remove('show');
+
+    function showMessage(el, txt, type = 'error', autoHideDelay = 0) {
+        if (!el) return;
+        const iconMap = {'error': 'fa-times-circle', 'success': 'fa-check-circle', 'info': 'fa-info-circle', 'warning':'fa-exclamation-triangle'};
+        el.innerHTML = `<i class="fas ${iconMap[type] || 'fa-info-circle'}" style="margin-right:8px;"></i> ${txt}`;
+        el.className = `message ${type}`;
+        el.style.display = 'flex';
+        if (autoHideDelay > 0) {
+            setTimeout(() => hideMessage(el), autoHideDelay);
+        }
+    }
+    function hideMessage(el) {
+        if (!el) return;
+        el.style.display = 'none'; el.innerHTML = '';
+    }
+    const sanitizeHTML = str => { const tmp = document.createElement('div'); tmp.textContent = str || ''; return tmp.innerHTML; };
+
+    async function callApi(action, payload = {}) {
+        showLoading();
+        if (currentSchoolSpreadsheetId && action !== 'login') {
+            payload.spreadsheetId = currentSchoolSpreadsheetId;
+        }
+        try {
+            const res = await fetch(GAS_URL, {
+                method: 'POST', credentials: 'omit', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action, ...payload })
+            });
+            const responseBodyText = await res.text();
+            let resultJson;
+            try { resultJson = JSON.parse(responseBodyText); } 
+            catch(e) { console.error(`Non-JSON from GAS (${action}):`, responseBodyText); throw new Error(`Server communication error (Non-JSON). Status: ${res.status}`);}
+            hideLoading();
+            if (!res.ok || !resultJson.success) { throw new Error(resultJson.error || resultJson.message || `API Error (${action}). Status: ${res.status}`);}
+            return resultJson;
+        } catch (err) {
+            console.error(`API Call Error (${action}):`, err); hideLoading();
+            showMessage(D.loginContainer.classList.contains('hidden') ? D.globalMessage : D.loginMessage, `Error: ${err.message}`, 'error');
+            return { success: false, error: err.message };
+        }
+    }
+    
+    D.loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault(); hideMessage(D.loginMessage);
+        const mobile = D.mobileInput.value.trim(); const password = D.passwordInput.value.trim();
+        if (!mobile || !password) { showMessage(D.loginMessage, 'Mobile and password required.', 'error'); return; }
+        D.loginButton.disabled = true;
+        const result = await callApi('login', { mobile, password });
+        D.loginButton.disabled = false;
+        if (result?.success && result.spreadsheetId && result.sheetNames) {
+            currentSchoolSpreadsheetId = result.spreadsheetId;
+            // If backend sends schoolName with login, use it. Otherwise, try localStorage or default.
+            currentSchoolName = result.schoolName || localStorage.getItem('loggedInSchoolName') || "School";
+            localStorage.setItem('schoolSpreadsheetId', currentSchoolSpreadsheetId);
+            localStorage.setItem('loggedInSchoolName', currentSchoolName);
+            D.loginContainer.classList.add('hidden'); D.dataContainer.classList.remove('hidden');
+            D.schoolNameDisplaySpan.textContent = sanitizeHTML(currentSchoolName) + "'s";
+            displaySheetNames(result.sheetNames);
+        } else { showMessage(D.loginMessage, result?.message || result?.error || 'Login failed.', 'error'); }
+    });
+
+    D.logoutBtn.addEventListener('click', () => {
+        currentSchoolSpreadsheetId = null; localStorage.removeItem('schoolSpreadsheetId'); localStorage.removeItem('loggedInSchoolName');
+        D.dataContainer.classList.add('hidden'); D.loginContainer.classList.remove('hidden');
+        D.sheetList.innerHTML = ''; D.zipFileInput.value = ''; D.fileNameDisplay.textContent = 'No file selected.'; D.restoreDataBtn.disabled = true;
+        hideMessage(D.loginMessage); hideMessage(D.globalMessage); D.loginForm.reset();
+    });
+
+    function displaySheetNames(sheetNames) {
+        D.sheetList.innerHTML = '';
+        if (sheetNames.length === 0) {
+            D.sheetList.innerHTML = '<li class="sheet-list-item" style="justify-content:center; color:var(--medium-grey);">No sheets in this spreadsheet.</li>';
+            D.downloadAllZipBtn.disabled = true; return;
+        }
+        D.downloadAllZipBtn.disabled = false;
+        sheetNames.forEach(name => {
+            const li = document.createElement('li'); li.className = 'sheet-list-item';
+            li.innerHTML = `<i class="far fa-file-alt"></i><span>${sanitizeHTML(name)}</span>`;
+            D.sheetList.appendChild(li);
+        });
+    }
+
+    D.downloadAllZipBtn.addEventListener('click', async () => {
+        if (!currentSchoolSpreadsheetId) { showMessage(D.globalMessage, "Not logged in.", "error", 3000); return; }
+        showMessage(D.globalMessage, 'Fetching all sheets data for ZIP...', 'info');
+        D.downloadAllZipBtn.disabled = true;
+        const result = await callApi('getAllSheetsDataForZip', {});
+        if (result?.success && result.data && result.data.length > 0) {
+            if (typeof JSZip !== 'undefined' && typeof saveAs !== 'undefined') {
+                 try {
+                    const zip = new JSZip();
+                    result.data.forEach(sheetFile => {
+                        const jsonData = JSON.stringify(sheetFile.data, null, 2);
+                        // Sanitize sheet name for filename (replace invalid characters)
+                        const safeSheetName = sanitizeHTML(sheetFile.sheetName).replace(/[\/\?<>\\:\*\|":\s]/g, '_');
+                        zip.file(`${safeSheetName || 'untitled_sheet'}.json`, jsonData);
+                    });
+                    const zipBlob = await zip.generateAsync({type:"blob", compression: "DEFLATE", compressionOptions: {level: 6}});
+                    const schoolNameForFile = (currentSchoolName || "School_Data").replace(/[\/\?<>\\:\*\|":\s]/g, '_');
+                    saveAs(zipBlob, `${schoolNameForFile}_all_sheets_backup.zip`);
+                    showMessage(D.globalMessage, 'All sheets data zipped and download initiated!', 'success', 5000);
+                 } catch (zipError) { console.error("JSZip Error:", zipError); showMessage(D.globalMessage, 'Error creating ZIP file. Try again.', 'error'); }
+            } else { showMessage(D.globalMessage, 'JSZip/FileSaver library not available.', 'error'); console.error("JSZip or FileSaver missing.");}
+        } else if (result?.success && (!result.data || result.data.length === 0)) { showMessage(D.globalMessage, 'No data in sheets to ZIP.', 'warning', 5000);
+        } else { showMessage(D.globalMessage, `Failed to fetch sheets for ZIP: ${result?.error || 'Unknown error'}`, 'error');}
+        D.downloadAllZipBtn.disabled = false;
+    });
+    
+    D.zipFileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            D.fileNameDisplay.textContent = sanitizeHTML(file.name);
+            D.restoreDataBtn.disabled = false;
+        } else {
+            D.fileNameDisplay.textContent = 'No file selected.';
+            D.restoreDataBtn.disabled = true;
+        }
+    });
+
+    D.restoreDataBtn.addEventListener('click', async () => {
+        const file = D.zipFileInput.files[0];
+        if (!file) { showMessage(D.globalMessage, "Please select a ZIP file to restore.", "warning", 3000); return; }
+        if (!currentSchoolSpreadsheetId) { showMessage(D.globalMessage, "Error: Not logged in or school context lost.", "error", 3000); return; }
+        if (!confirm("WARNING: This will OVERWRITE existing sheets with the same names in your spreadsheet, or create new ones. Data in overwritten sheets will be LOST. Are you sure you want to proceed?")) {
+            return;
+        }
+
+        showMessage(D.globalMessage, "Processing ZIP file... this may take a moment.", "info");
+        D.restoreDataBtn.disabled = true;
+
+        try {
+            const jszip = new JSZip();
+            const contents = await jszip.loadAsync(file);
+            const sheetsDataToRestore = [];
+            const filePromises = [];
+
+            for (const filename in contents.files) {
+                if (filename.endsWith('.json') && !contents.files[filename].dir) {
+                    const filePromise = contents.files[filename].async('string')
+                        .then(jsonString => {
+                            try {
+                                const jsonData = JSON.parse(jsonString);
+                                // Ensure jsonData is an array of objects
+                                if (Array.isArray(jsonData) && (jsonData.length === 0 || typeof jsonData[0] === 'object')) {
+                                    sheetsDataToRestore.push({
+                                        sheetName: filename.replace('.json', ''),
+                                        data: jsonData
+                                    });
+                                } else {
+                                     console.warn(`Skipping file ${filename}: Not a valid JSON array of objects.`);
+                                     throw new Error(`File ${filename} does not contain a valid JSON array of objects.`);
+                                }
+                            } catch (parseErr) {
+                                console.error(`Error parsing JSON from ${filename}:`, parseErr);
+                                throw new Error(`Could not parse ${filename}. Ensure it's valid JSON data.`);
+                            }
+                        });
+                    filePromises.push(filePromise);
+                }
+            }
+
+            await Promise.all(filePromises); // Wait for all files to be read and parsed
+
+            if (sheetsDataToRestore.length === 0) {
+                throw new Error("No valid JSON files found in the ZIP archive to restore.");
+            }
+            
+            showMessage(D.globalMessage, `Found ${sheetsDataToRestore.length} sheets. Restoring to spreadsheet...`, 'info');
+
+            const result = await callApi('restoreSheetsFromZip', { sheetsData: sheetsDataToRestore });
+
+            if (result?.success) {
+                showMessage(D.globalMessage, result.message || "Data restored successfully!", "success", 7000);
+                // Optionally, refresh the sheet list if needed (though data is not displayed here directly)
+                const loginResult = await callApi('login', { mobile: D.mobileInput.value, password: D.passwordInput.value });
+                 if (loginResult?.success && loginResult.sheetNames) displaySheetNames(loginResult.sheetNames);
+
+            } else {
+                let detailedError = result?.error || "Restore failed.";
+                if (result?.errors && Array.isArray(result.errors) && result.errors.length > 0) {
+                    detailedError += " Details: " + result.errors.join("; ");
+                }
+                showMessage(D.globalMessage, detailedError, 'error');
+            }
+
+        } catch (error) {
+            console.error("Error during ZIP restore process:", error);
+            showMessage(D.globalMessage, `Restore process error: ${error.message}`, 'error');
+        } finally {
+            D.restoreDataBtn.disabled = false;
+            D.zipFileInput.value = ''; // Reset file input
+            D.fileNameDisplay.textContent = 'No file selected.';
+        }
+    });
+    
+    // Basic session handling (check if user was previously logged in)
+    document.addEventListener('DOMContentLoaded', () => {
+        const storedId = localStorage.getItem('schoolSpreadsheetId');
+        const storedSchoolName = localStorage.getItem('loggedInSchoolName');
+        if (storedId) {
+            currentSchoolSpreadsheetId = storedId;
+            currentSchoolName = storedSchoolName || "School";
+            D.loginContainer.classList.add('hidden');
+            D.dataContainer.classList.remove('hidden');
+            D.schoolNameDisplaySpan.textContent = sanitizeHTML(currentSchoolName) + "'s";
+             // Fetch sheet names on page load if session exists
+            callApi('login', {mobile: D.mobileInput.value /* this might be empty */, password: D.passwordInput.value /* this might be empty */})
+            .then(loginResult => {
+                 if (loginResult?.success && loginResult.sheetNames) {
+                     displaySheetNames(loginResult.sheetNames);
+                 } else if (loginResult && !loginResult.success) {
+                     // Could not re-verify or fetch sheets, force logout/re-login
+                     D.logoutBtn.click(); // Simulate logout
+                     if (loginResult.message) showMessage(D.loginMessage, loginResult.message, 'error');
+                 }
+             });
+        }
+    });
+</script>
+</body>
+</html>
