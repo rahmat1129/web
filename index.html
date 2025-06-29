@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>sameer website developer </title>
+<link rel="stylesheet" href="style.css">
+  <link rel="icon" href="icon.png" type="image/png">
+  <meta name="theme-color" content="#007BFF">
+    <meta name="description" content="Digitize your school with our advanced, free School Management ERP software. Get AI support, custom development, and a powerful suite of management tools.">
+    <meta name="keywords" content="Digital ERP, Free School ERP, School Management System, Digital School, School Software Free, Education Technology, School Community, AI School Support, Custom School App, Online Fees Payment, Student Management">
+
+    <!-- === PWA (Web App) Requirements ADDED HERE === -->
+    <meta name="theme-color" content="#00f0ff">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon/favicon.jpg">
+    <!-- === End of PWA Requirements === -->
+
+    <!-- Google Fonts (Original) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Orbitron:wght@400;500;700&family=Rajdhani:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons (Original) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        /* --- Cyber Theme Variables --- */
+        :root {
+            --cyber-bg: #0a0c14; /* Deep dark blue/black */
+            --cyber-bg-secondary: #121828; /* Slightly lighter dark blue */
+            --cyber-primary: #00f0ff;   /* Bright Cyan */
+            --cyber-secondary: #f000ff; /* Bright Magenta */
+            --cyber-accent: #00ff7f;    /* Bright Spring Green */
+            --cyber-text: #c5cde0;      /* MODIFIED: Less bright off-white for text */
+            --cyber-text-dim: #808a9a;    /* Dimmer grey for less important text */
+            --cyber-border: rgba(0, 240, 255, 0.3); /* Cyan border with alpha */
+            --cyber-glow-primary: 0 0 8px var(--cyber-primary), 0 0 16px var(--cyber-primary), 0 0 24px var(--cyber-primary);
+            --cyber-glow-secondary: 0 0 8px var(--cyber-secondary), 0 0 16px var(--cyber-secondary);
+            
+            --font-body: 'Poppins', sans-serif;
+            --font-heading: 'Orbitron', sans-serif; /* Futuristic heading font */
+            --font-subheading: 'Rajdhani', sans-serif;
+
+            --navbar-height: 75px;
+            --transition-speed: 0.4s;
+            --card-border-radius: 8px;
+        }
+
+        /* --- Global Styles & Resets --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body {
+            font-family: var(--font-body);
+            color: var(--cyber-text);
+            line-height: 1.7;
+            background-color: var(--cyber-bg);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --- Preloader --- */
+        #preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--cyber-bg);
+            z-index: 99999; display: flex; justify-content: center; align-items: center;
+            transition: opacity 0.7s var(--transition-speed) ease-out, visibility 0.7s var(--transition-speed) ease-out;
+            opacity: 1; visibility: visible;
+        }
+        #preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none;}
+        .preloader-logo-container { text-align: center;}
+        .preloader-logo {
+            font-family: var(--font-heading); font-size: 2rem; color: var(--cyber-primary);
+            text-shadow: var(--cyber-glow-primary); margin-bottom: 20px;
+            animation: pulseLogo 2s infinite alternate;
+        }
+        @keyframes pulseLogo {
+            from { opacity: 0.7; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1.05); }
+        }
+        .spinner {
+            width: 60px; height: 60px;
+            border: 4px solid rgba(0, 240, 255, 0.2);
+            border-top-color: var(--cyber-primary);
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite, preloaderGlow 1.2s linear infinite alternate;
+        }
+        @keyframes preloaderGlow {
+            0% { box-shadow: 0 0 5px var(--cyber-primary), inset 0 0 5px var(--cyber-primary); }
+            100% { box-shadow: 0 0 15px var(--cyber-primary), inset 0 0 15px var(--cyber-primary); }
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); font-weight: 700; margin-bottom: 1.2rem; color: var(--cyber-primary); text-shadow: 0 0 5px rgba(0, 240, 255, 0.5); letter-spacing: 1px;}
+        h1 { font-size: 3rem; line-height: 1.2; }
+        h2 { font-size: 2.5rem; }
+        h3 { font-size: 1.8rem; color: var(--cyber-secondary); text-shadow: 0 0 5px rgba(240, 0, 255, 0.5); }
+        p { margin-bottom: 1.2rem; color: var(--cyber-text-dim); font-size: 1rem; }
+        a { color: var(--cyber-accent); text-decoration: none; transition: color var(--transition-speed) ease, text-shadow var(--transition-speed) ease; }
+        a:hover { color: var(--cyber-primary); text-shadow: var(--cyber-glow-primary); }
+        
+        .container { width: 90%; max-width: 1200px; margin: 0 auto; padding: 0 15px; position: relative; z-index: 2;}
+        section { padding: 100px 0; overflow: hidden; position: relative; }
+        section::before { /* Optional subtle grid background */
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image:
+                linear-gradient(rgba(0,240,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,240,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.5;
+            z-index: 0;
+            pointer-events: none;
+        }
+        section:nth-of-type(even) { background-color: var(--cyber-bg-secondary); }
+        
+        img { max-width: 100%; height: auto; display: block; border-radius: var(--card-border-radius); border: 1px solid var(--cyber-border); filter: brightness(0.9) contrast(1.1); }
+
+        /* Buttons - Cyber Style */
+        .btn {
+            display: inline-block; padding: 14px 35px; font-size: 1rem; font-weight: 600;
+            text-align: center; border-radius: var(--card-border-radius); cursor: pointer;
+            transition: all var(--transition-speed) cubic-bezier(0.25, 0.8, 0.25, 1);
+            text-transform: uppercase; letter-spacing: 1.5px; position: relative; overflow: hidden;
+            z-index: 1; border: 2px solid transparent;
+            font-family: var(--font-subheading);
+        }
+        .btn::before { /* Glitch/Scan line effect container */
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left var(--transition-speed) ease-out;
+        }
+        .btn:hover::before { left: 100%; }
+        .btn .spinner-icon { display: none; margin-left: 10px; font-size: 1em; animation: spin 1s linear infinite; }
+        .btn.loading .btn-text { opacity: 0.6; }
+        .btn.loading .spinner-icon { display: inline-block; }
+
+        .btn-primary {
+            background-color: var(--cyber-primary); color: var(--cyber-bg);
+            border-color: var(--cyber-primary);
+            box-shadow: 0 0 10px var(--cyber-primary), inset 0 0 5px rgba(255,255,255,0.3);
+        }
+        .btn-primary:hover {
+            background-color: var(--cyber-bg); color: var(--cyber-primary);
+            box-shadow: 0 0 15px var(--cyber-primary), 0 0 25px var(--cyber-primary);
+            transform: translateY(-3px) scale(1.02);
+        }
+        .btn-secondary {
+            background-color: transparent; color: var(--cyber-secondary);
+            border: 2px solid var(--cyber-secondary);
+            box-shadow: 0 0 8px var(--cyber-secondary);
+        }
+        .btn-secondary:hover {
+            background-color: var(--cyber-secondary); color: var(--cyber-bg);
+            box-shadow: 0 0 12px var(--cyber-secondary), 0 0 20px var(--cyber-secondary);
+            transform: translateY(-3px) scale(1.02);
+        }
+        .btn-accent {
+            background-color: var(--cyber-accent); color: var(--cyber-bg);
+            border-color: var(--cyber-accent);
+            box-shadow: 0 0 10px var(--cyber-accent), inset 0 0 5px rgba(0,0,0,0.2);
+        }
+        .btn-accent:hover {
+            background-color: var(--cyber-bg); color: var(--cyber-accent);
+            box-shadow: 0 0 15px var(--cyber-accent), 0 0 25px var(--cyber-accent);
+             transform: translateY(-3px) scale(1.02);
+        }
+
+        /* Section Title - Cyber Style */
+        .section-title { text-align: center; margin-bottom: 70px; position: relative; }
+        .section-title h2 { font-size: 2.8rem; margin-bottom: 15px; }
+        .section-title p { font-size: 1.1rem; color: var(--cyber-text-dim); max-width: 750px; margin: 0 auto; }
+        .section-title::after { /* Animated underline */
+            content: ''; display: block; width: 80px; height: 4px;
+            background: linear-gradient(90deg, var(--cyber-secondary), var(--cyber-primary), var(--cyber-accent));
+            background-size: 200% 100%;
+            margin: 25px auto 0; border-radius: 2px;
+            animation: gradientUnderline 4s linear infinite;
+        }
+        @keyframes gradientUnderline {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Scroll Animations - Basic Setup */
+        .animate-on-scroll { opacity: 0; transform: translateY(50px) scale(0.95); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+        .animate-on-scroll.visible { opacity: 1; transform: translateY(0) scale(1); }
+
+        /* --- Header & Navigation - Cyber Style --- */
+        #main-header {
+            background-color: rgba(10, 12, 20, 0.8); /* Semi-transparent dark */
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 15px rgba(0, 240, 255, 0.1);
+            position: fixed; width: 100%; top: 0; left: 0; z-index: 1000;
+            height: var(--navbar-height);
+            transition: background-color var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+            border-bottom: 1px solid var(--cyber-border);
+        }
+        #main-header.scrolled { background-color: rgba(10, 12, 20, 0.95); box-shadow: 0 5px 25px rgba(0, 240, 255, 0.15); }
+        #main-header .container { display: flex; justify-content: space-between; align-items: center; height: 100%; }
+        #main-header .logo { font-family: var(--font-heading); font-size: 1.6rem; font-weight: 700; color: var(--cyber-primary); display: flex; align-items: center; text-shadow: var(--cyber-glow-primary); }
+        #main-header .logo i { color: var(--cyber-primary); margin-right: 10px; font-size: 1.5rem; animation: rotateIcon 5s linear infinite;}
+        @keyframes rotateIcon { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        #main-nav ul { list-style: none; display: flex; align-items: center; }
+        #main-nav ul li { margin-left: 35px; }
+        #main-nav ul li a {
+            color: var(--cyber-text); font-weight: 500; font-size: 0.9rem;
+            padding-bottom: 8px; position: relative; text-transform: uppercase;
+            transition: color var(--transition-speed) ease, text-shadow var(--transition-speed) ease;
+            letter-spacing: 1px; font-family: var(--font-subheading);
+        }
+        #main-nav ul li a::after {
+            content: ''; position: absolute; bottom: 0px; left: 0; width: 0; height: 2px;
+            background-color: var(--cyber-primary);
+            transition: width var(--transition-speed) ease;
+            box-shadow: 0 0 5px var(--cyber-primary);
+        }
+        #main-nav ul li a:hover, #main-nav ul li a.active { color: var(--cyber-primary); text-shadow: var(--cyber-glow-primary); }
+        #main-nav ul li a:hover::after, #main-nav ul li a.active::after { width: 100%; }
+        
+        #mobile-menu-toggle { display: none; font-size: 1.8rem; color: var(--cyber-primary); cursor: pointer; background: none; border: none; z-index: 1001; padding: 10px; }
+        #mobile-menu-toggle i { text-shadow: var(--cyber-glow-primary); }
+
+
+        /* --- Hero Section - Cyber Style --- */
+        #hero {
+            background: linear-gradient(rgba(10, 12, 20, 0.8), rgba(18, 24, 40, 0.9)), url('https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8dGVjaG5vbG9neXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=1000&q=80') no-repeat center center/cover;
+            color: var(--cyber-text); min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            text-align: center; position: relative; padding-top: var(--navbar-height);
+            overflow: visible;
+        }
+        #hero::before { /* Overlay for glitch or scan lines */
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 240, 255, 0.05),
+                rgba(0, 240, 255, 0.05) 1px,
+                transparent 1px,
+                transparent 5px
+            );
+            animation: scanlines 20s linear infinite;
+            opacity: 0.5;
+            z-index: 1;
+            pointer-events: none;
+        }
+        @keyframes scanlines {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100px; }
+        }
+        #hero .hero-content { max-width: 900px; z-index: 2; animation: heroFadeInUp 1.2s ease-out forwards; }
+        @keyframes heroFadeInUp {
+            from { opacity: 0; transform: translateY(40px) perspective(500px) rotateX(10deg); }
+            to { opacity: 1; transform: translateY(0) perspective(500px) rotateX(0deg); }
+        }
+        #hero h1 {
+            font-size: 3.8rem; margin-bottom: 1.8rem; color: var(--cyber-text); font-weight: 700;
+            text-shadow: 0 0 10px var(--cyber-primary), 0 0 20px var(--cyber-primary), 0 0 5px #fff;
+            animation: textGlow 2s infinite alternate;
+        }
+        @keyframes textGlow {
+            from { text-shadow: 0 0 8px var(--cyber-primary), 0 0 15px var(--cyber-primary), 0 0 3px #fff; }
+            to { text-shadow: 0 0 15px var(--cyber-primary), 0 0 25px var(--cyber-primary), 0 0 8px #fff; }
+        }
+        #hero h1 .highlight { color: var(--cyber-accent); text-shadow: 0 0 10px var(--cyber-accent); }
+        #hero p { font-size: 1.25rem; margin-bottom: 2.8rem; color: var(--cyber-text); font-weight: 400; line-height: 1.8; }
+        #hero .cta-buttons .btn { margin: 0 12px; padding: 16px 40px; font-size: 1.05rem; }
+
+
+        /* --- Registration Popup Modal --- */
+        #registration-popup {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(10, 12, 20, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1001;
+            display: none; /* Initially hidden */
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        #registration-popup.active {
+            display: flex;
+            opacity: 1;
+        }
+        .popup-content {
+            background: var(--cyber-bg-secondary);
+            padding: 40px;
+            border-radius: var(--card-border-radius);
+            border: 1px solid var(--cyber-border);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.25);
+            text-align: center;
+            position: relative;
+            width: 90%;
+            max-width: 550px;
+            transform: scale(0.95);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #registration-popup.active .popup-content {
+            transform: scale(1);
+        }
+        .popup-content h3 {
+            margin-bottom: 30px;
+            color: var(--cyber-primary);
+            font-size: 1.8rem;
+        }
+        .popup-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .popup-buttons .btn {
+            width: 100%;
+        }
+        .popup-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            color: var(--cyber-text-dim);
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        .popup-close-btn:hover {
+            color: var(--cyber-primary);
+            transform: rotate(90deg);
+        }
+
+        /* --- Cyber Card Base Style & Animations --- */
+        .cyber-card {
+            background: rgba(18, 24, 40, 0.7); /* Semi-transparent card bg */
+            border: 1px solid var(--cyber-border);
+            border-radius: var(--card-border-radius);
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1), inset 0 0 10px rgba(0, 240, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+            transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+            z-index: 1;
+        }
+        .cyber-card::before, .cyber-card::after { /* Corner elements */
+            content: ""; position: absolute; width: 15px; height: 15px;
+            border-color: var(--cyber-primary);
+            border-style: solid;
+            transition: all var(--transition-speed) ease;
+            z-index: -1; /* Behind content */
+            opacity: 0.7;
+        }
+        .cyber-card::before { top: -2px; left: -2px; border-width: 2px 0 0 2px; }
+        .cyber-card::after { bottom: -2px; right: -2px; border-width: 0 2px 2px 0; }
+
+        .cyber-card:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.25), 0 0 40px rgba(0, 240, 255, 0.15), inset 0 0 15px rgba(0, 240, 255, 0.1);
+            border-color: var(--cyber-primary);
+        }
+        .cyber-card:hover::before { width: calc(100% + 4px); height: calc(100% + 4px); opacity: 1; border-color: var(--cyber-secondary);}
+        .cyber-card:hover::after { width: calc(100% + 4px); height: calc(100% + 4px); opacity: 1; border-color: var(--cyber-accent); }
+        
+        .card-content-wrapper { position: relative; z-index: 2; }
+        .scanline, .grid-overlay, .data-stream { z-index: 1; }
+
+        /* Animation Style 1: Scanline Glow */
+        .cyber-card.scanline-glow .scanline {
+            position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+            background: var(--cyber-primary); box-shadow: 0 0 10px var(--cyber-primary);
+            opacity: 0; animation: scan 4s linear infinite paused; /* Paused initially */
+        }
+        .cyber-card.scanline-glow:hover .scanline { opacity: 0.8; animation-play-state: running; }
+        @keyframes scan {
+            0% { transform: translateY(-10px); opacity: 0; }
+            10% { transform: translateY(0); opacity: 0.8; }
+            90% { transform: translateY(calc(100% - 3px)); opacity: 0.8; }
+            100% { transform: translateY(calc(100% + 10px)); opacity: 0; }
+        }
+
+        /* Animation Style 2: Pulsing Grid */
+        .cyber-card.pulsing-grid .grid-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image:
+                linear-gradient(var(--cyber-secondary) 1px, transparent 1px),
+                linear-gradient(90deg, var(--cyber-secondary) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0;
+            transition: opacity var(--transition-speed) ease;
+            animation: pulseGrid 3s infinite alternate;
+        }
+        .cyber-card.pulsing-grid:hover .grid-overlay { opacity: 0.15; }
+        @keyframes pulseGrid {
+            from { opacity: 0.05; background-size: 28px 28px; }
+            to { opacity: 0.15; background-size: 32px 32px; }
+        }
+
+        /* Animation Style 3: Data Flow */
+        .cyber-card.data-flow .data-stream {
+            position: absolute; top: 0; left: 0; width: 200%; height: 100%; /* Wider for movement */
+            background: repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(0, 255, 127, 0.05) 10px, rgba(0, 255, 127, 0.05) 12px);
+            opacity: 0; transition: opacity var(--transition-speed);
+            animation: flow 10s linear infinite;
+        }
+        .cyber-card.data-flow:hover .data-stream { opacity: 1; }
+        @keyframes flow {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Applying card styles to sections */
+        #about .about-content { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center; }
+        #about .about-image img {
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.2);
+            border: 2px solid var(--cyber-primary);
+            transition: transform 0.5s ease, box-shadow 0.5s ease;
+        }
+        #about .about-image:hover img {
+            transform: scale(1.05) perspective(1000px) rotateY(5deg);
+            box-shadow: 0 0 40px var(--cyber-primary);
+        }
+
+        /* How It Works Section */
+        #how-it-works .process-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; margin-top: 50px; }
+        .step-card { text-align: center; }
+        .step-card .step-number {
+            display: inline-block; width: 60px; height: 60px; line-height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--cyber-secondary), var(--cyber-primary));
+            color: var(--cyber-bg); font-size: 1.8rem; font-weight: 700;
+            margin-bottom: 25px;
+            box-shadow: 0 0 15px var(--cyber-primary);
+            position: relative; z-index: 2;
+        }
+        .step-card h4 { font-size: 1.5rem; color: var(--cyber-accent); margin-bottom: 15px; }
+        .step-card p { font-size: 0.95rem; color: var(--cyber-text-dim); }
+
+        /* Features Section */
+        #features .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 35px; }
+        .feature-card { text-align: center; }
+        .feature-card .icon {
+            font-size: 3.5rem; margin-bottom: 25px; display: inline-block;
+            color: var(--cyber-primary);
+            text-shadow: var(--cyber-glow-primary);
+            transition: transform var(--transition-speed) ease;
+        }
+        .feature-card:hover .icon { transform: scale(1.1) rotateY(360deg); }
+        .feature-card h3 { font-size: 1.6rem; margin-bottom: 15px; color: var(--cyber-accent); }
+
+        /* Statistics Section */
+        #stats {
+             background: linear-gradient(rgba(10,12,20,0.9), rgba(18,24,40,0.95)), 
+                        url('https://images.unsplash.com/photo-1550745165-9bc0b252726c?auto=format&fit=crop&w=1000&q=80') no-repeat center center/cover;
+            padding: 80px 0;
+        }
+        #stats h2 { color: var(--cyber-text); text-shadow: 0 0 10px var(--cyber-secondary); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 35px; margin-top: 50px; }
+        .stat-item { padding: 35px 25px; text-align: center; transition-delay: calc(var(--item-index, 0) * 0.1s) !important; }
+        .stat-item .stat-icon { font-size: 3rem; color: var(--cyber-accent); margin-bottom: 18px; text-shadow: 0 0 8px var(--cyber-accent); }
+        .stat-item .stat-number { font-family: var(--font-heading); font-size: 3rem; font-weight: 700; color: var(--cyber-text); display: block; margin-bottom: 8px; text-shadow: 0 0 5px #fff; }
+        .stat-item .stat-label { font-size: 1rem; color: var(--cyber-text-dim); text-transform: uppercase; letter-spacing: 1.5px; }
+
+        /* Services Section */
+        #services .services-container { display: grid; grid-template-columns: 1fr; gap: 40px; margin-top: 50px; }
+        .service-item { display: flex; align-items: flex-start; gap: 30px; }
+        .service-icon { font-size: 2.8rem; color: var(--cyber-secondary); flex-shrink: 0; width: 70px; text-align: center; margin-top: 5px; text-shadow: var(--cyber-glow-secondary); transition: transform var(--transition-speed) ease;}
+        .service-item:hover .service-icon {transform: rotate(15deg) scale(1.1);}
+        .service-content h3 { margin-top: 0; margin-bottom: 10px; color: var(--cyber-accent); font-size: 1.6rem;}
+        
+        /* Contact Section */
+        #contact .contact-container { display: grid; grid-template-columns: 1fr 1.2fr; gap: 60px; align-items: start; margin-top: 50px;}
+        #contact .info-item { display: flex; align-items: center; margin-bottom: 20px; color: var(--cyber-text); }
+        #contact .info-item i { font-size: 1.5rem; color: var(--cyber-accent); margin-right: 18px; width: 35px; text-align: center; text-shadow: 0 0 8px var(--cyber-accent);}
+        #contact .social-links a { color: var(--cyber-text-dim); font-size: 1.8rem; margin-right: 18px; transition: color var(--transition-speed) ease, transform var(--transition-speed) ease; }
+        #contact .social-links a:hover { color: var(--cyber-primary); transform: translateY(-4px) scale(1.1); text-shadow: var(--cyber-glow-primary); }
+
+        #registration-form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        #registration-form label { color: var(--cyber-text-dim); font-weight: 500; font-size: 0.95rem; }
+        #registration-form input, #registration-form textarea {
+            width: 100%; background-color: rgba(18, 24, 40, 0.6);
+            border: 1px solid var(--cyber-border); color: var(--cyber-text);
+            padding: 14px 18px; border-radius: 6px; font-size: 1rem;
+            font-family: var(--font-body);
+        }
+        #registration-form input::placeholder, #registration-form textarea::placeholder { color: rgba(128, 138, 154, 0.6); }
+        #registration-form input:focus, #registration-form textarea:focus {
+            outline: none; border-color: var(--cyber-primary);
+            box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.2), inset 0 0 8px rgba(0, 240, 255, 0.1);
+            background-color: rgba(18, 24, 40, 0.8);
+        }
+        #form-feedback { margin-top: 20px; padding: 15px 20px; border-radius: 6px; font-size: 1rem; text-align: center; display: none; border-width: 2px; border-style: solid; }
+        #form-feedback.success { background-color: rgba(0, 255, 127, 0.1); color: var(--cyber-accent); border-color: var(--cyber-accent); box-shadow: 0 0 10px var(--cyber-accent); }
+        #form-feedback.error { background-color: rgba(240, 0, 255, 0.1); color: var(--cyber-secondary); border-color: var(--cyber-secondary); box-shadow: 0 0 10px var(--cyber-secondary); }
+
+        /* --- Footer --- */
+        #main-footer {
+            background-color: var(--cyber-bg-secondary);
+            color: var(--cyber-text-dim);
+            padding: 70px 0 35px; text-align: center;
+            border-top: 2px solid var(--cyber-primary);
+            box-shadow: 0 -5px 20px rgba(0, 240, 255, 0.1);
+        }
+        #main-footer .footer-content .logo { font-family: var(--font-heading); font-size: 2.2rem; color: var(--cyber-primary); margin-bottom: 18px; text-shadow: var(--cyber-glow-primary); display: inline-block;}
+        #main-footer .footer-content .logo i { animation: rotateIcon 6s linear infinite reverse; }
+        #main-footer .footer-content p { max-width: 650px; margin: 0 auto 28px; font-size: 0.95rem; }
+        #main-footer .footer-social-links a { color: var(--cyber-text-dim); font-size: 1.8rem; margin: 0 14px; transition: color var(--transition-speed) ease, transform var(--transition-speed) ease, text-shadow var(--transition-speed) ease; display: inline-block; }
+        #main-footer .footer-social-links a:hover { color: var(--cyber-primary); transform: translateY(-5px) scale(1.15); text-shadow: var(--cyber-glow-primary); }
+        #main-footer .footer-bottom { border-top: 1px solid var(--cyber-border); padding-top: 28px; margin-top: 35px; font-size: 0.9rem; }
+        #main-footer .footer-bottom a { color: var(--cyber-accent); }
+
+        /* Responsive Adjustments */
+        @media (max-width: 992px) {
+            h1 { font-size: 2.6rem; }
+            h2 { font-size: 2.2rem; }
+            #hero h1 { font-size: 3.2rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            #about .about-content { grid-template-columns: 1fr; }
+            #contact .contact-container { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            html { font-size: 15px; }
+            #main-nav ul {
+                display: none; flex-direction: column; position: absolute;
+                top: var(--navbar-height); left: 0; width: 100%;
+                background-color: rgba(10, 12, 20, 0.98);
+                backdrop-filter: blur(5px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+                padding: 20px 0;
+                animation: slideDownMobileMenu 0.4s ease-out;
+                border-top: 1px solid var(--cyber-border);
+            }
+            #main-nav ul.active { display: flex; }
+            #main-nav ul li { margin: 12px 25px; text-align: left; width: calc(100% - 50px); }
+            #main-nav ul li a { padding: 12px 15px; display: block; font-size: 1rem;}
+            
+            #mobile-menu-toggle { display: block; }
+            @keyframes slideDownMobileMenu { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+            #hero { min-height: 90vh; }
+            #hero h1 { font-size: 2.8rem; }
+            .section-title h2 { font-size: 2.3rem; }
+            #how-it-works .process-steps, #features .features-grid, .stats-grid { grid-template-columns: 1fr; }
+            #registration-form { grid-template-columns: 1fr; }
+        }
+         @media (max-width: 576px) {
+            #hero h1 { font-size: 2.4rem; }
+            #main-header .logo { font-size: 1.4rem; }
+            .btn { padding: 12px 28px; font-size: 0.95rem; }
+            .section-title h2 { font-size: 2rem;}
+         }
+    </style>
+</head>
+<body style="visibility: hidden; opacity: 0;"> <!-- Initially hidden for preloader -->
+
+    <div id="preloader">
+        <div class="preloader-logo-container">
+            <div class="preloader-logo">Digital ERP</div>
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <header id="main-header">
+        <div class="container">
+            <a href="#hero" class="logo">
+                <i class="fas fa-atom"></i> <span>Digital ERP</span>
+            </a>
+            <nav id="main-nav">
+                <button id="mobile-menu-toggle" aria-label="Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <ul>
+                    <li><a href="#hero" class="active">Home</a></li>
+                    <li><a href="#about">Mission</a></li>
+                    <li><a href="#how-it-works">How it Works</a></li>
+                    <li><a href="#services">Services</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Your original main content from here is unchanged... -->
+        <section id="hero">
+            <div class="hero-content">
+                <h1>Modernize Your Institution With Our <span class="highlight">Powerful Digital ERP</span> Software!</h1>
+                <p>A complete school management solution: Advanced features, AI customer support, community building, and much more, all designed for the future of education.</p>
+                <div class="cta-buttons">
+                    <a href="#" id="open-popup-btn" class="btn btn-accent">Register for Free</a>
+                    <a href="#features" class="btn btn-secondary">View Features</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="animate-on-scroll">
+            <div class="container">
+                 <div class="section-title">
+                     <h2>Our Mission: Every School Digital, Every Student Successful</h2>
+                     <p>We are committed to empowering educational institutions and preparing them for a digital-first future with powerful, intuitive, and accessible technology.</p>
+                 </div>
+                <div class="about-content">
+                    <div class="about-text">
+                        <h3>Not Just Software, A Complete Ecosystem</h3>
+                        <p>
+                           Digital ERP is more than just a tool; it's a movement to bring positive change to the education system. We help institutions streamline administrative tasks, enabling educators to focus more on teaching and fostering holistic student development.
+                        </p>
+                         <p>
+                            Our user-friendly interface, comprehensive features, and dedicated support system ensure that any institution, regardless of size, can easily embrace digital transformation.
+                        </p>
+                        <a href="#how-it-works" class="btn btn-primary" style="margin-top: 15px;">Learn How to Start</a>
+                    </div>
+                    <div class="about-image">
+                        <img src="https://images.unsplash.com/photo-1576267423445-b2e0074d68a4?auto=format&fit=crop&w=480&q=80" alt="Team collaborating on a digital project">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="how-it-works" class="animate-on-scroll">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Getting Started is Extremely Easy!</h2>
+                    <p>Onboard your institution with our powerful ERP in just 3 simple steps.</p>
+                </div>
+                <div class="process-steps">
+                    <div class="cyber-card scanline-glow step-card animate-on-scroll" style="transition-delay: 0.1s;">
+                        <div class="card-content-wrapper">
+                            <div class="step-number">1</div>
+                            <h4>Register</h4>
+                            <p>Fill out the contact form below or get in touch with our team. Registration is fast, simple, and absolutely free!</p>
+                        </div>
+                        <div class="scanline"></div>
+                    </div>
+                    <div class="cyber-card scanline-glow step-card animate-on-scroll" style="transition-delay: 0.2s;">
+                         <div class="card-content-wrapper">
+                            <div class="step-number">2</div>
+                            <h4>Setup & Training</h4>
+                            <p>Our dedicated team will configure the ERP for your school and provide comprehensive training for your staff.</p>
+                        </div>
+                        <div class="scanline"></div>
+                    </div>
+                    <div class="cyber-card scanline-glow step-card animate-on-scroll" style="transition-delay: 0.3s;">
+                        <div class="card-content-wrapper">
+                            <div class="step-number">3</div>
+                            <h4>Go Digital</h4>
+                            <p>You're all set! Start managing your school's operations digitally and experience a new level of efficiency.</p>
+                        </div>
+                         <div class="scanline"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Key Features of the ERP Software</h2>
+                    <p>Powerful modules designed to make your school management easy, efficient, and effective.</p>
+                </div>
+                <div class="features-grid">
+                    <div class="cyber-card pulsing-grid feature-card animate-on-scroll"><div class="grid-overlay"></div><div class="card-content-wrapper"><div class="icon"><i class="fas fa-user-graduate"></i></div><h3>Student Management</h3><p>Track student records, profiles, and progress from admission to alumni.</p></div></div>
+                    <div class="cyber-card pulsing-grid feature-card animate-on-scroll" style="transition-delay: 0.1s;"><div class="grid-overlay"></div><div class="card-content-wrapper"><div class="icon"><i class="fas fa-chalkboard-teacher"></i></div><h3>Staff Management</h3><p>Manage staff profiles, payroll, leave requests, and performance tracking.</p></div></div>
+                    <div class="cyber-card pulsing-grid feature-card animate-on-scroll" style="transition-delay: 0.2s;"><div class="grid-overlay"></div><div class="card-content-wrapper"><div class="icon"><i class="fas fa-calendar-alt"></i></div><h3>Academic Management</h3><p>Oversee classes, sections, subjects, timetables, and syllabus with ease.</p></div></div>
+                    <div class="cyber-card pulsing-grid feature-card animate-on-scroll" style="transition-delay: 0.3s;"><div class="grid-overlay"></div><div class="card-content-wrapper"><div class="icon"><i class="fas fa-money-check-alt"></i></div><h3>Fee Management</h3><p>Online/offline fee collection, due reminders, discounts, and reporting.</p></div></div>
+                    <div class="cyber-card pulsing-grid feature-card animate-on-scroll" style="transition-delay: 0.4s;"><div class="grid-overlay"></div><div class="card-content-wrapper"><div class="icon"><i class="fas fa-clipboard-list"></i></div><h3>Exams & Results</h3><p>Exam schedules, marks entry, grading systems, and online report cards.</p></div></div>
+                    <div class="cyber-card pulsing-grid feature-card animate-on-scroll" style="transition-delay: 0.5s;"><div class="grid-overlay"></div><div class="card-content-wrapper"><div class="icon"><i class="fas fa-user-check"></i></div><h3>Attendance</h3><p>Digital attendance (manual/biometric), with automated SMS alerts and reports.</p></div></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="stats" class="animate-on-scroll">
+            <div class="container">
+                <h2 class="section-title">Our Impact (Coming Soon!)</h2>
+                <div class="stats-grid">
+                    <div class="cyber-card stat-item animate-on-scroll" style="--item-index: 1;">
+                        <div class="stat-icon"><i class="fas fa-school"></i></div>
+                        <span class="stat-number" data-target="150">0</span>
+                        <span class="stat-label">Schools Joined</span>
+                    </div>
+                    <div class="cyber-card stat-item animate-on-scroll" style="--item-index: 2;">
+                         <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <span class="stat-number" data-target="25000">0</span>
+                        <span class="stat-label">Students Benefited</span>
+                    </div>
+                    <div class="cyber-card stat-item animate-on-scroll" style="--item-index: 3;">
+                         <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
+                        <span class="stat-number" data-target="10000">0</span>
+                        <span class="stat-label">Admin Hours Saved</span>
+                    </div>
+                     <div class="cyber-card stat-item animate-on-scroll" style="--item-index: 4;">
+                         <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                        <span class="stat-number" data-target="99">0</span>
+                        <span class="stat-label">% Uptime</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="services" class="animate-on-scroll">
+            <div class="container">
+                 <div class="section-title">
+                     <h2>Our Additional Services</h2>
+                     <p>We offer more than just ERP software to ensure your digital journey is a complete success.</p>
+                 </div>
+                 <div class="services-container">
+                    <div class="cyber-card data-flow service-item animate-on-scroll" style="transition-delay: 0.1s;">
+                         <div class="data-stream"></div>
+                         <div class="card-content-wrapper">
+                            <div class="service-icon"><i class="fas fa-drafting-compass"></i></div>
+                            <div class="service-content">
+                                <h3>Custom App & Website Development</h3>
+                                <p>Custom-built mobile apps and attractive websites tailored to your school's specific needs and branding.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cyber-card data-flow service-item animate-on-scroll" style="transition-delay: 0.2s;">
+                         <div class="data-stream"></div>
+                         <div class="card-content-wrapper">
+                            <div class="service-icon"><i class="fas fa-robot"></i> <i class="fas fa-headset" style="margin-left:-5px;"></i></div>
+                            <div class="service-content">
+                                 <h3>AI Powered + Human Support</h3>
+                                 <p>An AI chatbot for instant solutions and our expert support team for complex issues — always at your service.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="contact">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Contact Us & Register</h2>
+                    <p>Fill out the form below to express interest in our free ERP or to ask any questions. Our team will contact you shortly.</p>
+                </div>
+                <div class="contact-container">
+                    <div class="contact-info animate-on-scroll">
+                        <h3>Contact Information</h3>
+                        <p>We are ready to assist you. You can also connect with us through these channels:</p>
+                        <div class="info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Patna, Bihar, India</span> 
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-phone-alt"></i>
+                            <a href="tel:+917520863034">+91 75208 63034</a>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-envelope"></i>
+                            <a href="mailto:educationcommunity@gmail.com">educationcommunity@gmail.com</a>
+                        </div>
+                         <div class="info-item">
+                            <i class="fas fa-headset"></i>
+                            <span>AI Support Chat (Coming Soon)</span>
+                        </div>
+                        <h4 style="margin-top: 30px; margin-bottom: 15px; color: var(--cyber-primary);">Connect with Us:</h4>
+                        <div class="social-links">
+                            <a href="#" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                            <a href="#" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="#" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                             <a href="#" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                        </div>
+                    </div>
+                    <div class="contact-form-section animate-on-scroll">
+                        <h3>Free Registration Form</h3>
+                        <div id="form-feedback"></div>
+                        <form id="registration-form">
+                             <div class="form-group">
+                                <label for="schoolName">School Name <span style="color: var(--cyber-secondary);">*</span></label>
+                                <input type="text" id="schoolName" name="schoolName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactPerson">Contact Person Name <span style="color: var(--cyber-secondary);">*</span></label>
+                                <input type="text" id="contactPerson" name="contactPerson" required>
+                            </div>
+                             <div class="form-group">
+                                <label for="email">Email Address <span style="color: var(--cyber-secondary);">*</span></label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                             <div class="form-group">
+                                <label for="phone">Phone Number <span style="color: var(--cyber-secondary);">*</span></label>
+                                <input type="tel" id="phone" name="phone" required pattern="[6-9][0-9]{9}" title="Please enter a valid 10-digit Indian mobile number">
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="message">Your Message or Query (Optional)</label>
+                                <textarea id="message" name="message" rows="4"></textarea>
+                            </div>
+                            <div class="form-group full-width">
+                                <button type="submit" id="submit-button" class="btn btn-primary">
+                                    <span class="btn-text">Register</span>
+                                    <i class="fas fa-spinner spinner-icon"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer id="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <a href="#hero" class="logo">
+                     <i class="fas fa-atom"></i> <span>Digital ERP</span>
+                 </a>
+                 <p>Dedicated to improving education by connecting institutions with modern technology.</p>
+                <div class="footer-social-links">
+                     <a href="#" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                     <a href="#" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                     <a href="#" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                     <a href="#" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                     <a href="#" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                 </div>
+            </div>
+            <div class="footer-bottom">
+                © <span id="currentYear"></span> Digital ERP. All rights reserved | Designed & Developed by <a href="#" target="_blank">Digital Education System</a> 
+                 | <a href="#privacy">Privacy Policy</a> | <a href="#terms">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Registration Popup Modal HTML (Original) -->
+    <div id="registration-popup">
+        <div class="popup-content">
+            <button class="popup-close-btn" id="popup-close-btn" aria-label="Close">×</button>
+            <h3>Choose Registration Type</h3>
+            <div class="popup-buttons">
+                <a href="https://students1129.vercel.app" class="btn btn-primary">Students</a>
+                <a href="https://admin1129.vercel.app" class="btn btn-secondary">Teachers</a>
+                <a href="https://admin1129.vercel.app" class="btn btn-accent">Principal</a>
+     <a href="https://agent-pi-rouge.vercel.app/" class="btn btn-accent">Admin login</a>
+                      
+
+  <a href="https://premium-alpha.vercel.app" class="btn btn-primary" style="background: linear-gradient(90deg, var(--cyber-secondary), var(--cyber-primary)); border: none;">Premium</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Your original script tag, UNCHANGED -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Configuration ---
+            const googleAppsScriptUrl = 'https://script.google.com/macros/s/AKfycby4H7pjWBrQLTI0VnSnIVLu-4g_XgA9F1nKE0-X0_SwDWW5SpXyTgykFYI0qIfOeP5PJg/exec';
+
+            // --- Preloader ---
+            const preloader = document.getElementById('preloader');
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    preloader.classList.add('hidden');
+                    document.body.style.visibility = 'visible';
+                    document.body.style.opacity = '1';
+                }, 500);
+            });
+            document.body.style.transition = 'opacity 0.5s ease-in-out';
+
+            // --- Scroll Animations ---
+            const observerOptions = { root: null, rootMargin: '0px', threshold: 0.15 };
+            const observerCallback = (entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            };
+            const scrollObserver = new IntersectionObserver(observerCallback, observerOptions);
+            document.querySelectorAll('.animate-on-scroll').forEach(el => scrollObserver.observe(el));
+
+            // --- Navbar Scroll & Active Link ---
+            const header = document.getElementById('main-header');
+            const navLinks = document.querySelectorAll('#main-nav ul a');
+            const sections = document.querySelectorAll('main section[id]');
+            const navbarHeight = header.offsetHeight;
+
+            window.addEventListener('scroll', () => {
+                header.classList.toggle('scrolled', window.scrollY > 80);
+
+                let currentSectionId = 'hero';
+                sections.forEach(section => {
+                    if (window.scrollY >= section.offsetTop - navbarHeight - 80) {
+                        currentSectionId = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${currentSectionId}`) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+            // --- Mobile Menu Toggle ---
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const mainNavUl = document.querySelector('#main-nav ul');
+            const menuIcon = mobileMenuToggle.querySelector('i');
+
+            mobileMenuToggle.addEventListener('click', () => {
+                mainNavUl.classList.toggle('active');
+                menuIcon.classList.toggle('fa-bars');
+                menuIcon.classList.toggle('fa-times');
+            });
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (mainNavUl.classList.contains('active')) {
+                        mainNavUl.classList.remove('active');
+                        menuIcon.classList.add('fa-bars');
+                        menuIcon.classList.remove('fa-times');
+                    }
+                });
+            });
+
+            // --- Animated Number Counters ---
+            const statsSection = document.getElementById('stats');
+            if(statsSection) {
+                const counterObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const statNumbers = entry.target.querySelectorAll('.stat-number');
+                            statNumbers.forEach(counter => {
+                                const target = +counter.getAttribute('data-target');
+                                let current = 0;
+                                const increment = Math.ceil(target / 100);
+                                const updateCounter = () => {
+                                    if (current < target) {
+                                        current += increment;
+                                        counter.innerText = Math.min(current, target);
+                                        setTimeout(updateCounter, 20);
+                                    } else {
+                                        counter.innerText = target;
+                                    }
+                                };
+                                updateCounter();
+                            });
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.5 });
+                counterObserver.observe(statsSection);
+            }
+
+            // --- Contact Form Submission ---
+            const form = document.getElementById('registration-form');
+            const submitButton = document.getElementById('submit-button');
+            const formFeedback = document.getElementById('form-feedback');
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                submitButton.classList.add('loading');
+                submitButton.disabled = true;
+                formFeedback.style.display = 'none';
+                
+                try {
+                    const response = await fetch(googleAppsScriptUrl, { method: 'POST', body: new FormData(form) });
+                    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        showFeedback('success', 'Registration successful! We will contact you soon.');
+                        form.reset();
+                    } else {
+                        throw new Error(result.message || 'An unknown error occurred.');
+                    }
+                } catch (error) {
+                    showFeedback('error', `Submission failed: ${error.message}. Please try again.`);
+                } finally {
+                    submitButton.classList.remove('loading');
+                    submitButton.disabled = false;
+                }
+            });
+
+            function showFeedback(type, message) {
+                formFeedback.className = type;
+                formFeedback.textContent = message;
+                formFeedback.style.display = 'block';
+            }
+            
+            // --- Registration Popup Modal Logic ---
+            const popup = document.getElementById('registration-popup');
+            const openBtn = document.getElementById('open-popup-btn');
+            const closeBtn = document.getElementById('popup-close-btn');
+
+            if (popup && openBtn && closeBtn) {
+                openBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    popup.classList.add('active');
+                });
+
+                const closePopup = () => {
+                    popup.classList.remove('active');
+                };
+                
+                closeBtn.addEventListener('click', closePopup);
+                
+                // Close popup when clicking on the overlay background
+                popup.addEventListener('click', (e) => {
+                    if (e.target === popup) {
+                        closePopup();
+                    }
+                });
+            }
+
+            // --- Update Footer Year ---
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+        });
+    </script>
+    
+    <!-- Your original Service Worker Registration Script, UNCHANGED -->
+    <script>
+        // Check karein ki browser Service Worker ko support karta hai ya nahi
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(function(registration) {
+                        console.log('Service Worker register ho gaya hai, scope: ', registration.scope);
+                    })
+                    .catch(function(err) {
+                        console.log('Service Worker register nahi hua: ', err);
+                    });
+            });
+        }
+    </script>
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('Service Worker registered:', reg))
+    }
+  </script>
+
+</body>
+</html>
